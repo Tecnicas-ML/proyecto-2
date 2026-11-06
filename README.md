@@ -24,6 +24,9 @@ scripts/train_a1_mlp.py           Entrena A1 (MLP + TF-IDF)
 scripts/train_a2_bilstm.py        Entrena A2 (BiLSTM)
 scripts/train_a3_robertuito.py    Fine-tuning A3 (RoBERTuito); usar --fast para humo
 scripts/eval_baseline_l.py        Línea base sin ajuste (robertuito-hate-speech)
+scripts/make_comparison_table.py  Tabla A1/A2/A3/L
+app/gradio_app.py                 App local con el modelo A3
+blog/index.html                   Blog demo (ocultar comentario + normas)
 artifacts/                        Salidas locales (ignorado por git)
 ```
 
@@ -72,6 +75,16 @@ python scripts/smoke_eda_prep.py
 ```
 
 El script reproduce el EDA y la preparación fuera de Colab, guarda la partición y `prep_config.json` en `artifacts/` y termina imprimiendo `SMOKE OK`. Descarga el corpus y el tokenizador de Hugging Face, así que necesita internet.
+
+### App y blog (demo)
+
+```bash
+source .venv/bin/activate
+python app/gradio_app.py          # http://127.0.0.1:7860
+open blog/index.html              # modo simulado; o marcar "Usar API real"
+```
+
+Modelo elegido: **A3 RoBERTuito** (F1 odio en test 0.653). Umbral por defecto ≈ 0.28 (elegido en DEV).
 
 ## Reglas del equipo
 

@@ -1,0 +1,15 @@
+datasets
+transformers
+accelerate
+evaluate
+scikit-learn
+pandas
+pyarrow
+nltk
+pysentimiento
+torch
+tensorflow
+matplotlib
+joblib
+psutil
+gradio

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bitácora del barrio — demo de moderación</title>
+  <style>
+    :root {
+      --ink: #1c1917;
+      --paper: #f7f1e8;
+      --accent: #0f6b5c;
+      --warn: #8a3b12;
+      --muted: #5c564e;
+      --card: #fffaf3;
+      --line: #e4d8c8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, #efe4d4 0%, transparent 45%),
+        radial-gradient(circle at 90% 20%, #e7f0ec 0%, transparent 40%),
+        var(--paper);
+      min-height: 100vh;
+    }
+    header {
+      padding: 2.5rem 1.25rem 1rem;
+      max-width: 42rem;
+      margin: 0 auto;
+    }
+    .brand {
+      font-size: clamp(2rem, 6vw, 3rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.5rem;
+    }
+    .lede {
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin: 0;
+      max-width: 36rem;
+    }
+    main {
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 0 1.25rem 3rem;
+    }
+    article {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      padding: 1.25rem 1.35rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    article h2 { margin: 0 0 0.6rem; font-size: 1.35rem; }
+    article p { margin: 0; line-height: 1.55; color: #2a2622; }
+    .meta { margin-top: 0.85rem; font-size: 0.85rem; color: var(--muted); }
+    .controls {
+      display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;
+      margin: 1rem 0 0.25rem; font-size: 0.95rem;
+    }
+    .controls label { display: flex; gap: 0.4rem; align-items: center; color: var(--muted); }
+    input[type="url"], textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 0.7rem;
+      padding: 0.75rem 0.9rem;
+      font: inherit;
+      background: #fff;
+      color: var(--ink);
+    }
+    textarea { min-height: 6rem; resize: vertical; }
+    button {
+      appearance: none;
+      border: 0;
+      background: var(--accent);
+      color: #f7fffc;
+      font: inherit;
+      font-weight: 600;
+      padding: 0.7rem 1.1rem;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+    #comments { display: grid; gap: 0.85rem; margin-top: 1rem; }
+    .comment, .hidden-notice {
+      border: 1px solid var(--line);
+      border-radius: 0.85rem;
+      padding: 0.9rem 1rem;
+      background: #fff;
+    }
+    .hidden-notice {
+      border-color: #e8c4b0;
+      background: #fff4ec;
+      color: var(--warn);
+    }
+    .hidden-notice strong { display: block; margin-bottom: 0.35rem; }
+    .prob { font-size: 0.8rem; color: var(--muted); margin-top: 0.4rem; }
+    footer {
+      max-width: 42rem; margin: 0 auto; padding: 0 1.25rem 2.5rem;
+      color: var(--muted); font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="brand">Bitácora del barrio</p>
+    <p class="lede">Una nota de prueba. Abajo podés dejar un comentario: si el filtro detecta odio, lo ocultamos con un aviso de normas —para cuidar a quien lee.</p>
+  </header>
+
+  <main>
+    <article>
+      <h2>La plaza volvió a llenarse de voces</h2>
+      <p>
+        Después de meses de obras, la plaza del centro abrió otra vez. Hubo música,
+        puestos de comida y vecinas contando cómo vivieron el cambio. Esta bitácora
+        es solo una demo: lo importante está en la sección de comentarios.
+      </p>
+      <p class="meta">Demo del proyecto «Menos odio a la vista» · español</p>
+    </article>
+
+    <section>
+      <div class="controls">
+        <label>
+          <input type="checkbox" id="useApi" />
+          Usar API real (Gradio / Space)
+        </label>
+      </div>
+      <input id="apiUrl" type="url" placeholder="URL del Space o http://127.0.0.1:7860" value="http://127.0.0.1:7860" />
+
+      <form id="form" style="margin-top:0.9rem; display:grid; gap:0.7rem;">
+        <textarea id="text" placeholder="Escribí un comentario…" maxlength="500" required></textarea>
+        <button type="submit">Publicar</button>
+      </form>
+      <div id="comments" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer>
+    El modo simulado usa una lista corta de palabras agresivas solo para la demo offline.
+    Con la API real se usa el modelo A3 (RoBERTuito). No sustituye moderación humana.
+  </footer>
+
+  <script>
+    const GROSERIAS = /\b(mierda|puto|puta|idiota|imb[eé]cil|negro de mierda|basura|pelotudo|boludo)\b/i;
+    const NOTICE =
+      "Este comentario se ocultó porque podría incumplir las normas de la comunidad. Queremos un espacio donde todas las personas —incluidas chicas, niños y adolescentes— puedan leer sin tropiezos con agresiones.";
+
+    const commentsEl = document.getElementById("comments");
+    const form = document.getElementById("form");
+    const textEl = document.getElementById("text");
+    const useApi = document.getElementById("useApi");
+    const apiUrl = document.getElementById("apiUrl");
+
+    function renderShown(text, prob) {
+      const div = document.createElement("div");
+      div.className = "comment";
+      div.innerHTML = `<div>${escapeHtml(text)}</div>` +
+        (prob != null ? `<div class="prob">Prob. odio: ${prob.toFixed(3)}</div>` : "");
+      commentsEl.prepend(div);
+    }
+
+    function renderHidden(text, prob) {
+      const div = document.createElement("div");
+      div.className = "hidden-notice";
+      const title = document.createElement("strong");
+      title.textContent = "Normas de la comunidad";
+      const msg = document.createElement("span");
+      msg.textContent = NOTICE;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "secondary";
+      btn.style.marginTop = "0.7rem";
+      btn.textContent = "Mostrar de todos modos";
+      btn.onclick = () => {
+        div.remove();
+        renderShown(text + "", prob);
+        const first = commentsEl.firstElementChild;
+        if (first && prob != null) {
+          const p = first.querySelector(".prob");
+          if (p) p.textContent = `Prob. odio: ${prob.toFixed(3)} · mostrado por elección`;
+        }
+      };
+      div.append(title, msg, btn);
+      commentsEl.prepend(div);
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+    }
+
+    async function scoreWithApi(text) {
+      const base = apiUrl.value.replace(/\/$/, "");
+      // Gradio 4+/5 client protocol (call named endpoint /predict if configured)
+      const res = await fetch(`${base}/gradio_api/call/predict`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: [text, 0.28] }),
+      });
+      if (!res.ok) throw new Error("No se pudo llamar a la API");
+      const { event_id } = await res.json();
+      const stream = await fetch(`${base}/gradio_api/call/predict/${event_id}`);
+      const raw = await stream.text();
+      const lines = raw.trim().split("\n");
+      const dataLine = lines.reverse().find((l) => l.startsWith("data: "));
+      if (!dataLine) throw new Error("Respuesta vacía de Gradio");
+      const payload = JSON.parse(dataLine.slice(6));
+      // outputs: [etiqueta, prob, aviso]
+      const prob = Number(payload[1]);
+      const hide = String(payload[0]).toLowerCase().includes("odio");
+      return { hide, prob };
+    }
+
+    function scoreLocal(text) {
+      const hide = GROSERIAS.test(text);
+      return { hide, prob: hide ? 0.91 : 0.08 };
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = textEl.value.trim();
+      if (!text) return;
+      let result;
+      try {
+        result = useApi.checked ? await scoreWithApi(text) : scoreLocal(text);
+      } catch (err) {
+        alert("Falló la API. Probá el modo simulado o revisá la URL.\n" + err.message);
+        return;
+      }
+      if (result.hide) renderHidden(text, result.prob);
+      else renderShown(text, result.prob);
+      textEl.value = "";
+    });
+  </script>
+</body>
+</html>
