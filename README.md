@@ -21,6 +21,7 @@ Un clasificador que recibe un comentario en español y devuelve la probabilidad 
 proyecto_toxicidad_es.ipynb   Cuaderno principal (entregable)
 scripts/smoke_eda_prep.py     Prueba local de las secciones 2 a 4 del cuaderno
 scripts/train_a1_mlp.py       Entrena A1 (MLP + TF-IDF) sobre split_articulo_*
+scripts/train_a2_bilstm.py    Entrena A2 (BiLSTM) sobre split_articulo_*
 artifacts/                    Salidas locales (ignorado por git)
 ```
 
