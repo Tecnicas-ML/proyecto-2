@@ -1,2 +1,9 @@
 # Plan de trabajo local (no forma parte del entregable)
 PLAN.md
+
+# Entorno y artefactos locales de ejecución
+.venv/
+artifacts/
+__pycache__/
+*.parquet
+prep_config.json
