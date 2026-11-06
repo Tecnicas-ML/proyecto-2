@@ -24,10 +24,13 @@ scripts/train_a1_mlp.py           Entrena A1 (MLP + TF-IDF)
 scripts/train_a2_bilstm.py        Entrena A2 (BiLSTM)
 scripts/train_a3_robertuito.py    Fine-tuning A3 (RoBERTuito); usar --fast para humo
 scripts/eval_baseline_l.py        Línea base sin ajuste (robertuito-hate-speech)
-scripts/make_comparison_table.py  Tabla A1/A2/A3/L
-app/gradio_app.py                 App local con el modelo A3
-blog/index.html                   Blog demo (ocultar comentario + normas)
-artifacts/                        Salidas locales (ignorado por git)
+scripts/make_comparison_table.py       Tabla A1/A2/A3/L
+scripts/eval_hatecheck.py              Errores por funcionalidad (HateCheck-es)
+scripts/improvement_threshold_check.py Umbral 0.5 vs umbral DEV
+app/gradio_app.py                      App local con el modelo A3
+blog/index.html                        Blog demo (ocultar comentario + normas)
+space/                                 Archivos para Hugging Face Space
+artifacts/                             Salidas locales (ignorado por git)
 ```
 
 ## Datos
