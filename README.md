@@ -20,7 +20,8 @@ Un clasificador que recibe un comentario en español y devuelve la probabilidad 
 ```
 proyecto_toxicidad_es.ipynb   Cuaderno principal (entregable)
 scripts/smoke_eda_prep.py     Prueba local de las secciones 2 a 4 del cuaderno
-artifacts/                    Salidas locales del script (ignorado por git)
+scripts/train_a1_mlp.py       Entrena A1 (MLP + TF-IDF) sobre split_articulo_*
+artifacts/                    Salidas locales (ignorado por git)
 ```
 
 ## Datos
@@ -30,12 +31,12 @@ artifacts/                    Salidas locales del script (ignorado por git)
 | Partición oficial | Filas | % con odio | Artículos únicos |
 |---|---|---|---|
 | train | 36.420 | 15,2 % | 990 |
-| dev | 9.106 | sin verificar | sin verificar |
+| dev | 9.106 | 15,2 % | 989 |
 | test | 11.343 | 15,8 % | 248 |
 
-Cifras tomadas de la API de estadísticas de Hugging Face (nov 2026).
+Cifras verificadas al ejecutar el cuaderno / `scripts/smoke_eda_prep.py` (nov 2026).
 
-**Partición por artículo:** el train contiene prácticamente todos los artículos del corpus, así que el test oficial probablemente comenta noticias ya vistas en entrenamiento. Por eso el cuaderno crea una partición en la que ningún artículo aparece en dos conjuntos (`split_articulo_{train,dev,test}.parquet`) y la usa como evaluación principal. Todos los modelos se entrenan y evalúan con esos mismos archivos.
+**Fuga por artículo (`body`):** el **test oficial no comparte artículos con train** (0 %). El **dev oficial sí: 100 %** de sus artículos ya aparecen en train. Aun así usamos una partición por artículo (`split_articulo_*`) como evaluación principal para que train/dev/test no compartan noticias. Todos los modelos se entrenan y evalúan con esos mismos archivos.
 
 **Datos complementarios (solo evaluación, nunca entrenamiento):** `Paul/hatecheck-spanish` para el análisis de errores y un corpus de otro dominio para la prueba fuera de dominio.
 
