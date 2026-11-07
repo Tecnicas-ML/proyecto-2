@@ -623,10 +623,12 @@
   <script>
     const SPACE_DEFAULT = "https://tatisvivass-menos-odio-a-la-vista.hf.space";
     const THR = 0.28;
-    const STORAGE_KEY = "el-tiempo-demo-comments-v1";
+    const STORAGE_KEY = "la-plaza-demo-comments-v4";
 
-    const INSULTOS = /\b(mierda|puto|puta|idiota|imb[eé]cil|estupido|estúpido|basura|pelotudo|boludo|hdp|hij[oa] de puta|la concha|carajo|forro|tarado|retrasado|in[uú]til|asco)\b/i;
-    const DANO = /\b(suicidat[eé]|matat[eé]|matate|morit[eé]|mejor\s+mor[ií]|ojal[aá]\s+te\s+mueras|ojal[aá]\s+te\s+mates|anda\s+a\s+morir|kill\s+yourself)\b/i;
+    // Groserías / insultos (ES + variantes COL/AR; plurals)
+    const INSULTOS = /\b(mierda|put[oa]s?|marica[s]?|mariquita[s]?|idiota[s]?|imb[eé]cil(?:es)?|est[uú]pido[s]?|basura[s]?|pelotudo[s]?|boludo[s]?|huev[oó]n(?:es)?|pendejo[s]?|malparido[s]?|gonorrea[s]?|carechimba[s]?|culicagado[s]?|zorra[s]?|perra[s]?|hp|hdp|hijodeputa|hij[oa]s?\s+de\s+puta|la\s+concha|carajo|forro[s]?|tarado[s]?|retrasado[s]?|in[uú]til(?:es)?|asco|negro[s]?\s+de\s+mierda|sudaca[s]?|indocumentado[s]?)\b/i;
+    const DANO = /\b(suicidat[eé]|matat[eé]|matate|morit[eé]|mejor\s+mor[ií]|ojal[aá]\s+te\s+mueras|ojal[aá]\s+te\s+mates|anda\s+a\s+morir|kill\s+yourself|te\s+voy\s+a\s+matar|voy\s+a\s+matar|los\s+voy\s+a\s+matar|ojal[aá]\s+bombardeen|muerte\s+a)\b/i;
+    const ODIO = /\b(no\s+deber[ií]an\s+existir|ojal[aá]\s+desaparezcan|hay\s+que\s+echar\s+a\s+todos|fuera\s+del\s+pa[ií]s\s+ya|extermin(?:ar|io)|limpiar\s+el\s+barrio\s+de|gays?\s+fuera|lesbianas?\s+fuera)\b/i;
 
     const BLOCK_TITLE = "Violación de las normas de la comunidad";
     const BLOCK_BODY =
@@ -735,9 +737,25 @@
       banner.innerHTML = "";
     }
 
+    /** Quita separadores tipo p.u.t.o y leetspeak suave (m1erda, pvt4). */
+    function softNormalize(text) {
+      let t = text.normalize("NFC").toLowerCase();
+      t = t.replace(/([a-záéíóúñü])[^a-záéíóúñü0-9\s]+(?=[a-záéíóúñü])/gi, "$1");
+      t = t
+        .replace(/0/g, "o")
+        .replace(/1/g, "i")
+        .replace(/3/g, "e")
+        .replace(/4/g, "a")
+        .replace(/5/g, "s")
+        .replace(/@/g, "a");
+      t = t.replace(/pvtas?/g, "puta").replace(/pvto/g, "puto");
+      return t;
+    }
+
     function safetyRules(text) {
-      const t = text.normalize("NFC");
-      if (DANO.test(t)) return { block: true, reason: "norma del sitio: contenido que invita a hacerse daño" };
+      const t = softNormalize(text);
+      if (DANO.test(t)) return { block: true, reason: "norma del sitio: amenaza o daño" };
+      if (ODIO.test(t)) return { block: true, reason: "norma del sitio: discurso de odio / exclusión" };
       if (INSULTOS.test(t)) return { block: true, reason: "norma del sitio: insulto o agresión" };
       return { block: false, reason: null };
     }
