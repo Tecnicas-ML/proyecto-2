@@ -3,195 +3,363 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>El Diario del Barrio — demo de moderación</title>
+  <title>La plaza del centro reabrió entre música y vecinos | LA PLAZA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --ink: #12141a;
-      --paper: #f3f5f8;
-      --surface: #ffffff;
-      --accent: #0b5fff;
-      --accent-ink: #0739a0;
-      --warn-bg: #fff1f0;
-      --warn-border: #f0b4ae;
-      --warn-ink: #8f1d18;
-      --ok-bg: #eef8f1;
-      --ok-border: #b7dfc2;
-      --ok-ink: #1a5c32;
-      --muted: #5b6472;
-      --line: #d9dee7;
-      --mast: #0e1525;
+      --rojo: #e10600;
+      --rojo-oscuro: #b00000;
+      --ink: #1a1a1a;
+      --muted: #5c5c5c;
+      --line: #e2e2e2;
+      --paper: #fafafa;
+      --white: #fff;
+      --warn-bg: #fff2f1;
+      --warn-border: #f0b8b3;
+      --warn-ink: #8a1c16;
+      --ok-bg: #eef8f0;
+      --ok-border: #b9dfc4;
+      --ok-ink: #1b5c34;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: "Source Serif 4", "Libre Baskerville", "Iowan Old Style", Georgia, serif;
       color: var(--ink);
-      background:
-        linear-gradient(180deg, #e8edf5 0%, transparent 220px),
-        var(--paper);
-      min-height: 100vh;
+      background: var(--paper);
+      font-family: "Source Serif 4", Georgia, serif;
     }
-    .masthead {
-      background: var(--mast);
-      color: #f5f7fb;
-      padding: 0.85rem 1.25rem;
+    a { color: inherit; text-decoration: none; }
+    .sans { font-family: "Libre Franklin", system-ui, sans-serif; }
+
+    /* —— Top —— */
+    .topbar {
+      background: #111;
+      color: #ddd;
+      font-size: 0.72rem;
+      letter-spacing: 0.02em;
     }
-    .masthead-inner {
-      max-width: 44rem;
+    .topbar-inner, .nav-inner, .wrap, .hero-caption {
+      max-width: 72rem;
       margin: 0 auto;
+      padding: 0 1.1rem;
+    }
+    .topbar-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-top: 0.45rem;
+      padding-bottom: 0.45rem;
+      flex-wrap: wrap;
+    }
+    .brand-bar {
+      background: var(--white);
+      border-bottom: 3px solid var(--rojo);
+      padding: 0.85rem 0 0.7rem;
+    }
+    .brand-row {
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: 0 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+    .logo-link img {
+      height: clamp(2.6rem, 6vw, 3.4rem);
+      width: auto;
+      display: block;
+      border-radius: 4px;
+    }
+    .logo-text {
+      font-weight: 800;
+      font-size: clamp(1.85rem, 5vw, 2.55rem);
+      letter-spacing: 0.06em;
+      color: var(--rojo);
+      margin: 0;
+      line-height: 1;
+    }
+    .logo-text span { color: var(--ink); }
+    .demo-pill {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border: 1px solid var(--line);
+      padding: 0.3rem 0.55rem;
+      border-radius: 999px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    nav.sections {
+      background: var(--white);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .nav-inner {
+      display: flex;
+      gap: 1.1rem;
+      overflow-x: auto;
+      padding-top: 0.65rem;
+      padding-bottom: 0.65rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .nav-inner a { color: #333; white-space: nowrap; }
+    .nav-inner a:hover { color: var(--rojo); }
+    .nav-inner a.active { color: var(--rojo); }
+
+    /* —— Hero —— */
+    .hero {
+      position: relative;
+      width: 100%;
+      max-height: 62vh;
+      overflow: hidden;
+      background: #222;
+    }
+    .hero img {
+      width: 100%;
+      height: min(62vh, 520px);
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.02) saturate(1.05);
+    }
+    .hero-caption {
+      font-size: 0.78rem;
+      color: var(--muted);
+      padding-top: 0.45rem;
+      padding-bottom: 0.2rem;
+    }
+
+    /* —— Layout —— */
+    .layout {
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: 1.25rem 1.1rem 3rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 18.5rem;
+      gap: 2rem;
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { order: 3; }
+    }
+
+    .kicker {
+      color: var(--rojo);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0 0 0.55rem;
+    }
+    h1 {
+      font-size: clamp(1.85rem, 4.5vw, 2.75rem);
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.85rem;
+      font-weight: 700;
+    }
+    .byline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.85rem;
+      align-items: center;
+      font-size: 0.86rem;
+      color: var(--muted);
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.25rem;
+    }
+    .byline strong { color: var(--ink); font-weight: 700; }
+    .share {
+      display: flex;
+      gap: 0.4rem;
+      margin-left: auto;
+    }
+    .share button {
+      border: 1px solid var(--line);
+      background: var(--white);
+      border-radius: 999px;
+      padding: 0.28rem 0.65rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: default;
+    }
+
+    article .lead {
+      font-size: 1.2rem;
+      line-height: 1.55;
+      font-weight: 600;
+      margin: 0 0 1.1rem;
+    }
+    article p {
+      font-size: 1.08rem;
+      line-height: 1.7;
+      margin: 0 0 1.05rem;
+    }
+    .pull {
+      border-left: 3px solid var(--rojo);
+      margin: 1.4rem 0;
+      padding: 0.2rem 0 0.2rem 1rem;
+      font-size: 1.25rem;
+      line-height: 1.35;
+      font-weight: 600;
+      color: #222;
+    }
+    .inline-photo {
+      margin: 1.4rem 0 0.35rem;
+    }
+    .inline-photo img {
+      width: 100%;
+      display: block;
+      border-radius: 2px;
+    }
+    .inline-photo figcaption {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 1.5rem 0 0;
+    }
+    .tags span {
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid var(--line);
+      background: #f3f3f3;
+      padding: 0.3rem 0.55rem;
+      border-radius: 2px;
+    }
+
+    /* —— Sidebar —— */
+    .sidebar h3 {
+      font-size: 0.95rem;
+      margin: 0 0 0.75rem;
+      padding-bottom: 0.45rem;
+      border-bottom: 2px solid var(--rojo);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .related {
+      display: grid;
+      gap: 0.85rem;
+    }
+    .related a {
+      display: grid;
+      grid-template-columns: 5.5rem 1fr;
+      gap: 0.65rem;
+      align-items: start;
+    }
+    .related img {
+      width: 5.5rem;
+      height: 4rem;
+      object-fit: cover;
+      background: #ddd;
+    }
+    .related p {
+      margin: 0;
+      font-size: 0.88rem;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+    .related small {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* —— Comments —— */
+    .comments-wrap {
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: 0 1.1rem 3rem;
+    }
+    .comments {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--rojo);
+      padding: 1.25rem 1.2rem 1.4rem;
+    }
+    .comments-head {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
       gap: 1rem;
-      flex-wrap: wrap;
+      margin-bottom: 1rem;
     }
-    .mast-brand {
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      font-size: 0.95rem;
+    .comments-head h2 {
       margin: 0;
+      font-size: 1.25rem;
     }
-    .mast-tag {
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
-      font-size: 0.75rem;
-      opacity: 0.72;
-      margin: 0;
-    }
-    main {
-      max-width: 44rem;
-      margin: 0 auto;
-      padding: 1.75rem 1.25rem 3rem;
-    }
-    .kicker {
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent-ink);
-      margin: 0 0 0.55rem;
-    }
-    h1 {
-      font-size: clamp(1.85rem, 5vw, 2.55rem);
-      line-height: 1.12;
-      letter-spacing: -0.02em;
-      margin: 0 0 0.7rem;
-    }
-    .byline {
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
-      font-size: 0.88rem;
+    .comments-head .count {
+      font-size: 0.85rem;
       color: var(--muted);
-      margin: 0 0 1.4rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--line);
+      font-weight: 600;
     }
-    article p {
-      font-size: 1.08rem;
-      line-height: 1.65;
-      margin: 0 0 1rem;
+    .compose {
+      display: grid;
+      gap: 0.55rem;
+      margin-bottom: 0.35rem;
     }
-    .demo-note {
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
-      font-size: 0.82rem;
-      color: var(--muted);
-      background: #eef2f8;
-      border: 1px solid var(--line);
-      border-radius: 0.65rem;
-      padding: 0.7rem 0.85rem;
-      margin: 1.5rem 0 0;
-    }
-    .comments {
-      margin-top: 2rem;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 1rem;
-      padding: 1.15rem 1.2rem 1.35rem;
-      box-shadow: 0 10px 30px rgba(18, 20, 26, 0.04);
-    }
-    .comments h2 {
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
-      font-size: 1.05rem;
-      margin: 0 0 0.85rem;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      align-items: center;
-      margin-bottom: 0.55rem;
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
-      font-size: 0.88rem;
-      color: var(--muted);
-    }
-    .controls label { display: flex; gap: 0.4rem; align-items: center; }
-    #apiUrl, #author, #text {
+    .compose input, .compose textarea {
       width: 100%;
       border: 1px solid var(--line);
-      border-radius: 0.65rem;
-      padding: 0.7rem 0.85rem;
+      border-radius: 2px;
+      padding: 0.7rem 0.8rem;
       font: inherit;
       background: #fff;
-      color: var(--ink);
     }
-    #author { margin-bottom: 0.55rem; }
-    #apiUrl { margin-bottom: 0.55rem; font-family: "Avenir Next", "Segoe UI", sans-serif; font-size: 0.85rem; }
-    #text { min-height: 5.5rem; resize: vertical; margin-bottom: 0.55rem; }
-    .row {
+    .compose textarea { min-height: 6rem; resize: vertical; }
+    .compose-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 0.55rem;
       align-items: center;
     }
-    button {
+    .btn-primary {
       appearance: none;
       border: 0;
-      background: var(--accent);
+      background: var(--rojo);
       color: #fff;
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-family: "Libre Franklin", system-ui, sans-serif;
       font-weight: 700;
-      font-size: 0.92rem;
-      padding: 0.7rem 1.05rem;
-      border-radius: 0.55rem;
+      font-size: 0.88rem;
+      padding: 0.7rem 1.1rem;
+      border-radius: 2px;
       cursor: pointer;
     }
-    button:disabled { opacity: 0.55; cursor: wait; }
-    button.ghost {
-      background: transparent;
-      color: var(--accent-ink);
-      border: 1px solid var(--line);
-    }
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      margin: 0.65rem 0 0.85rem;
-    }
-    .chip {
-      appearance: none;
-      border: 1px solid var(--line);
-      background: #f7f9fc;
-      color: var(--ink);
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    .btn-primary:hover { background: var(--rojo-oscuro); }
+    .btn-primary:disabled { opacity: 0.55; cursor: wait; }
+    .hint {
       font-size: 0.78rem;
-      padding: 0.35rem 0.65rem;
-      border-radius: 999px;
-      cursor: pointer;
-    }
-    .chip:hover { border-color: var(--accent); color: var(--accent-ink); }
-    .status {
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
-      font-size: 0.8rem;
       color: var(--muted);
-      margin: 0.55rem 0 0;
+      margin: 0;
     }
     .banner {
       display: none;
       margin: 0.85rem 0 0;
       padding: 0.85rem 0.95rem;
-      border-radius: 0.7rem;
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      border-radius: 2px;
       font-size: 0.9rem;
       line-height: 1.45;
     }
@@ -207,140 +375,291 @@
       color: var(--ok-ink);
     }
     .banner strong { display: block; margin-bottom: 0.25rem; }
-    .banner .prob {
-      margin-top: 0.4rem;
-      font-size: 0.78rem;
-      opacity: 0.85;
-    }
-    #list {
-      display: grid;
-      gap: 0.75rem;
-      margin-top: 1.1rem;
-      padding-top: 1rem;
+    .banner .prob { margin-top: 0.4rem; font-size: 0.76rem; opacity: 0.9; }
+
+    #list { display: grid; gap: 0; margin-top: 1.1rem; }
+    .comment {
+      padding: 1rem 0;
       border-top: 1px solid var(--line);
     }
-    .comment {
-      border: 1px solid var(--line);
-      border-radius: 0.75rem;
-      padding: 0.8rem 0.9rem;
-      background: #fbfcfe;
-    }
     .comment .who {
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
-      font-size: 0.78rem;
+      margin: 0 0 0.25rem;
+      font-size: 0.86rem;
       font-weight: 700;
-      color: var(--accent-ink);
-      margin: 0 0 0.3rem;
     }
-    .comment .body { margin: 0; line-height: 1.45; }
+    .comment .body {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
     .comment .meta {
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      margin: 0.4rem 0 0;
       font-size: 0.72rem;
       color: var(--muted);
-      margin-top: 0.4rem;
+      font-weight: 500;
     }
     .empty {
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
-      font-size: 0.88rem;
+      margin: 0.5rem 0 0;
       color: var(--muted);
-      margin: 0;
+      font-size: 0.92rem;
     }
-    footer {
-      max-width: 44rem;
-      margin: 0 auto;
-      padding: 0 1.25rem 2.5rem;
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
+
+    details.demo {
+      max-width: 72rem;
+      margin: 0 auto 2.5rem;
+      padding: 0 1.1rem;
       font-size: 0.8rem;
       color: var(--muted);
+    }
+    details.demo summary {
+      cursor: pointer;
+      font-weight: 600;
+    }
+    details.demo .panel {
+      margin-top: 0.6rem;
+      padding: 0.75rem;
+      border: 1px dashed var(--line);
+      background: #fff;
+      display: grid;
+      gap: 0.45rem;
+    }
+    details.demo input[type="url"] {
+      width: 100%;
+      padding: 0.45rem 0.55rem;
+      border: 1px solid var(--line);
+      font: inherit;
+    }
+
+    footer.site {
+      background: #111;
+      color: #bbb;
+      padding: 1.5rem 1.1rem 2rem;
+      font-size: 0.78rem;
       line-height: 1.45;
     }
+    footer.site .wrap { max-width: 72rem; }
+    footer.site strong { color: #fff; }
   </style>
 </head>
 <body>
-  <header class="masthead">
-    <div class="masthead-inner">
-      <p class="mast-brand">El Diario del Barrio</p>
-      <p class="mast-tag">Edición demo · Moderación con IA</p>
+  <div class="topbar sans">
+    <div class="topbar-inner">
+      <span>Bogotá · viernes 6 de noviembre de 2026</span>
+      <span>Medio ficticio · demo académica</span>
+    </div>
+  </div>
+
+  <header class="brand-bar">
+    <div class="brand-row sans">
+      <a class="logo-link" href="#nota" aria-label="LA PLAZA — inicio">
+        <img src="assets/logo-la-plaza.jpg" alt="" width="120" height="48" />
+        <p class="logo-text">LA <span>PLAZA</span></p>
+      </a>
+      <span class="demo-pill">Demo · Menos odio a la vista</span>
     </div>
   </header>
 
-  <main>
-    <p class="kicker">Ciudad · Comunidad</p>
-    <h1>La plaza volvió a llenarse: vecinos celebran la reapertura</h1>
-    <p class="byline">Por redacción local · Hoy · 3 min de lectura</p>
+  <nav class="sections sans" aria-label="Secciones">
+    <div class="nav-inner">
+      <a class="active" href="#nota">Bogotá</a>
+      <a href="#nota">Colombia</a>
+      <a href="#nota">Política</a>
+      <a href="#nota">Deportes</a>
+      <a href="#nota">Cultura</a>
+      <a href="#comentarios">Opinión</a>
+      <a href="#comentarios">Comunidad</a>
+    </div>
+  </nav>
 
-    <article>
-      <p>
-        Después de meses de obras, la plaza del centro abrió otra vez. Hubo música,
-        puestos de comida y vecinas contando cómo vivieron el cambio. Las autoridades
-        prometieron mantener el espacio limpio y seguro para familias y adolescentes.
-      </p>
-      <p>
-        En los comentarios de esta nota podés opinar. Antes de publicar, un filtro
-        automático revisa si el texto incumple las normas de la comunidad. Si detecta
-        odio o agresión, <strong>el comentario no se envía</strong>.
-      </p>
-      <p class="demo-note">
-        Demo del proyecto «Menos odio a la vista». HTML estático + modelo A3 (RoBERTuito)
-        en Hugging Face. Los comentarios aprobados se guardan en este navegador (caché local).
-      </p>
-    </article>
+  <figure class="hero" id="nota">
+    <img src="assets/hero-plaza.jpg" alt="Vecinos en la plaza del centro durante la reapertura" width="1280" height="720" />
+  </figure>
+  <p class="hero-caption sans">La plaza del centro, el día de la reapertura. / Imagen de la demo del proyecto</p>
 
-    <section class="comments" aria-labelledby="comments-title">
-      <h2 id="comments-title">Comentarios</h2>
-
-      <div class="controls">
-        <label>
-          <input type="checkbox" id="useApi" checked />
-          Usar modelo real (Space HF)
-        </label>
-      </div>
-      <input
-        id="apiUrl"
-        type="url"
-        value="https://tatisvivass-menos-odio-a-la-vista.hf.space"
-        aria-label="URL del Space"
-      />
-
-      <div class="chips" aria-label="Ejemplos rápidos">
-        <button type="button" class="chip" data-sample="Qué buena nota, gracias por explicar el tema con claridad.">Limpio</button>
-        <button type="button" class="chip" data-sample="No estoy de acuerdo con la medida, me parece injusta.">Disenso</button>
-        <button type="button" class="chip" data-sample="Ojalá desaparezcan todos esos negros de mierda de una vez.">Agresivo</button>
-        <button type="button" class="chip" data-sample="Hay que echar a todos los inmigrantes del país ya.">Expulsión</button>
+  <div class="layout">
+    <div>
+      <p class="kicker sans">Bogotá · Comunidad</p>
+      <h1>La plaza del centro reabrió entre música, puestos y vecinos que volvieron a encontrarse</h1>
+      <div class="byline sans">
+        <strong>Por Camila Restrepo</strong>
+        <span>·</span>
+        <span>6 de noviembre 2026 · 12:40 p. m.</span>
+        <span>·</span>
+        <span>Actualizado 3:15 p. m.</span>
+        <div class="share" aria-hidden="true">
+          <button type="button">Compartir</button>
+          <button type="button">Guardar</button>
+        </div>
       </div>
 
-      <form id="form">
-        <input id="author" type="text" maxlength="40" placeholder="Tu nombre (opcional)" value="Lectora" />
-        <textarea id="text" maxlength="500" placeholder="Escribí tu comentario…" required></textarea>
-        <div class="row">
-          <button type="submit" id="submitBtn">Publicar comentario</button>
-          <button type="button" class="ghost" id="clearBtn">Vaciar caché</button>
+      <article>
+        <p class="lead">
+          Después de ocho meses de obras, el espacio público volvió a llenarse.
+          Familias, comerciantes y adolescentes coincidieron en pedir que la plaza
+          se mantenga segura y abierta para todas las personas.
+        </p>
+        <p>
+          La alcaldía local entregó formalmente el predio al mediodía. Hubo comparsa,
+          puestos de comida y un escenario improvisado frente a la iglesia. “Queríamos
+          un lugar donde los niños puedan estar sin miedo”, dijo una vecina que vivió
+          el cierre del parque durante casi todo el año.
+        </p>
+        <p class="pull">
+          “Internet también es patio: un comentario agresivo llega antes que cualquier moderador.”
+        </p>
+        <p>
+          La reapertura coincide con un debate más amplio sobre cómo cuidar los
+          espacios —físicos y digitales— donde la gente se encuentra. En foros y
+          redes, las notas de ciudad suelen atraer opiniones fuertes: algunas
+          constructivas, otras cargadas de insultos o discursos que empujan a
+          alguien a callarse.
+        </p>
+
+        <figure class="inline-photo">
+          <img
+            src="assets/inline-ciudad.jpg"
+            alt="Atardecer en el centro de la ciudad"
+            width="1200"
+            height="700"
+            loading="lazy"
+          />
+          <figcaption class="sans">El centro recupera iluminación y bancas nuevas tras la obra.</figcaption>
+        </figure>
+
+        <p>
+          Las autoridades prometieron vigilancia nocturna y una mesa de convivencia
+          con líderes de barrio. Comerciantes del sector celebraron el regreso del
+          flujo peatonal, aunque pidieron reglas claras para vendedores ambulantes.
+        </p>
+        <p>
+          Si querés opinar sobre esta nota, podés dejar un comentario abajo.
+          Antes de publicarse, un filtro automático revisa si el texto incumple las
+          normas de la comunidad. Si detecta odio, insultos graves o mensajes que
+          invitan a hacerse daño, <strong>el comentario no se envía</strong>.
+        </p>
+
+        <div class="tags sans">
+          <span>Bogotá</span>
+          <span>Espacio público</span>
+          <span>Convivencia</span>
+          <span>Comunidad</span>
+        </div>
+      </article>
+    </div>
+
+    <aside class="sidebar sans">
+      <h3>Más noticias</h3>
+      <div class="related">
+        <a href="#nota">
+          <img src="assets/thumb-bus.jpg" alt="" width="300" height="220" />
+          <div>
+            <p>La alcaldía anuncia refuerzo de rutas de bus para el fin de semana</p>
+            <small>Bogotá · hace 2 h</small>
+          </div>
+        </a>
+        <a href="#nota">
+          <img src="assets/thumb-politica.jpg" alt="" width="300" height="220" />
+          <div>
+            <p>Consejo discute presupuesto de cultura para 2027</p>
+            <small>Política · hace 4 h</small>
+          </div>
+        </a>
+        <a href="#nota">
+          <img src="assets/thumb-soccer.jpg" alt="" width="300" height="220" />
+          <div>
+            <p>Clásico local termina en empate en un partido trabado</p>
+            <small>Deportes · hace 5 h</small>
+          </div>
+        </a>
+        <a href="#nota">
+          <img src="assets/thumb-cine.jpg" alt="" width="300" height="220" />
+          <div>
+            <p>Festival de cine al aire libre llega a cinco plazas</p>
+            <small>Cultura · hace 7 h</small>
+          </div>
+        </a>
+      </div>
+    </aside>
+  </div>
+
+  <section class="comments-wrap" id="comentarios">
+    <div class="comments">
+      <div class="comments-head sans">
+        <h2>Comentarios</h2>
+        <span class="count"><span id="countNum">0</span> comentarios</span>
+      </div>
+
+      <form id="form" class="compose">
+        <input id="author" class="sans" type="text" maxlength="40" placeholder="Nombre" autocomplete="nickname" />
+        <textarea id="text" placeholder="Escribí tu comentario…" maxlength="500" required></textarea>
+        <div class="compose-actions">
+          <button type="submit" class="btn-primary" id="submitBtn">Publicar</button>
+          <p class="hint sans">Al publicar aceptás las normas de la comunidad. Máx. 500 caracteres.</p>
         </div>
       </form>
 
-      <p id="status" class="status">Conectado al Space. Si está dormido, abrilo una vez en otra pestaña.</p>
-      <div id="banner" class="banner" role="status" aria-live="polite"></div>
-
+      <div id="banner" class="banner sans" role="status" aria-live="polite"></div>
       <div id="list"></div>
-    </section>
-  </main>
+    </div>
+  </section>
 
-  <footer>
-    Normas de la comunidad: no se permiten insultos, agresiones ni discursos de odio hacia
-    personas o grupos. El filtro es automático (umbral ≈ 0,28) y no sustituye moderación humana.
-    Modo offline: lista corta de palabras solo para probar sin API.
+  <details class="demo sans">
+    <summary>Ajustes de la demo (modelo)</summary>
+    <div class="panel">
+      <label><input type="checkbox" id="useApi" checked /> Usar modelo real (Hugging Face Space)</label>
+      <input id="apiUrl" type="url" value="https://tatisvivass-menos-odio-a-la-vista.hf.space" />
+      <button type="button" class="btn-primary" id="clearBtn" style="width:fit-content;background:#444">Vaciar comentarios de este navegador</button>
+      <p class="hint" id="status">Modelo A3 + reglas de seguridad del sitio.</p>
+    </div>
+  </details>
+
+  <footer class="site sans">
+    <div class="wrap">
+      <p><strong>LA PLAZA</strong> — medio ficticio creado para el proyecto académico «Menos odio a la vista» (Pontificia Universidad Javeriana).</p>
+      <p style="margin:0.55rem 0 0">Filtro: RoBERTuito (odio hacia grupos) + reglas locales (insultos / daño). No sustituye moderación humana.</p>
+    </div>
   </footer>
 
   <script>
     const SPACE_DEFAULT = "https://tatisvivass-menos-odio-a-la-vista.hf.space";
     const THR = 0.28;
-    const STORAGE_KEY = "diario-barrio-comments-v1";
-    const GROSERIAS = /\b(mierda|puto|puta|idiota|imb[eé]cil|negro de mierda|basura|pelotudo|boludo)\b/i;
+    const STORAGE_KEY = "el-tiempo-demo-comments-v1";
+
+    const INSULTOS = /\b(mierda|puto|puta|idiota|imb[eé]cil|estupido|estúpido|basura|pelotudo|boludo|hdp|hij[oa] de puta|la concha|carajo|forro|tarado|retrasado|in[uú]til|asco)\b/i;
+    const DANO = /\b(suicidat[eé]|matat[eé]|matate|morit[eé]|mejor\s+mor[ií]|ojal[aá]\s+te\s+mueras|ojal[aá]\s+te\s+mates|anda\s+a\s+morir|kill\s+yourself)\b/i;
 
     const BLOCK_TITLE = "Violación de las normas de la comunidad";
     const BLOCK_BODY =
       "Tu comentario no se publicó. Puede herir a quien lee —en especial a chicas, niños, adolescentes y comunidades vulnerables—. " +
-      "Revisá el tono: rechazamos insultos, amenazas y discursos de odio. Podés reformular y volver a intentar.";
+      "Rechazamos insultos, amenazas, discursos de odio e incitación a hacerse daño. Reformulá y volvé a intentar.";
+
+    // Comentarios iniciales (como en un medio real). Solo se cargan si no hay caché.
+    const SEED = [
+      {
+        author: "Andrés M.",
+        text: "Qué alegría ver la plaza otra vez abierta. Ojalá mantengan la limpieza los fines de semana.",
+        prob: 0.02,
+        when: "Hoy · 1:05 p. m.",
+      },
+      {
+        author: "Laura G.",
+        text: "Bien por la obra, pero falta sombra y más bancas para adultos mayores.",
+        prob: 0.03,
+        when: "Hoy · 1:22 p. m.",
+      },
+      {
+        author: "Vecino del centro",
+        text: "No estoy de acuerdo con sacar a todos los vendedores. Hay que regular, no castigar.",
+        prob: 0.04,
+        when: "Hoy · 2:10 p. m.",
+      },
+      {
+        author: "Camila R.",
+        text: "Hermosa nota. Gracias por contar también lo que pedían las familias del sector.",
+        prob: 0.01,
+        when: "Hoy · 2:48 p. m.",
+      },
+    ];
 
     const form = document.getElementById("form");
     const textEl = document.getElementById("text");
@@ -352,12 +671,18 @@
     const listEl = document.getElementById("list");
     const submitBtn = document.getElementById("submitBtn");
     const clearBtn = document.getElementById("clearBtn");
+    const countNum = document.getElementById("countNum");
 
     function loadComments() {
       try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw == null) {
+          saveComments(SEED);
+          return SEED.slice();
+        }
+        return JSON.parse(raw);
       } catch {
-        return [];
+        return SEED.slice();
       }
     }
 
@@ -367,11 +692,12 @@
 
     function renderList() {
       const items = loadComments();
+      countNum.textContent = String(items.length);
       listEl.innerHTML = "";
       if (!items.length) {
         const p = document.createElement("p");
-        p.className = "empty";
-        p.textContent = "Todavía no hay comentarios publicados. Sé la primera persona en opinar con respeto.";
+        p.className = "empty sans";
+        p.textContent = "Sé la primera persona en comentar esta nota.";
         listEl.appendChild(p);
         return;
       }
@@ -379,9 +705,9 @@
         const div = document.createElement("div");
         div.className = "comment";
         div.innerHTML =
-          `<p class="who">${escapeHtml(item.author || "Anónimo")}</p>` +
+          `<p class="who sans">${escapeHtml(item.author || "Anónimo")}</p>` +
           `<p class="body">${escapeHtml(item.text)}</p>` +
-          `<p class="meta">${escapeHtml(item.when)} · prob. odio ${Number(item.prob).toFixed(3)} · aprobado</p>`;
+          `<p class="meta sans">${escapeHtml(item.when)}</p>`;
         listEl.appendChild(div);
       }
     }
@@ -392,45 +718,43 @@
       );
     }
 
-    function showBanner(kind, title, body, prob) {
-      banner.className = `banner show ${kind}`;
+    function showBanner(kind, title, body, prob, extra) {
+      banner.className = `banner show ${kind} sans`;
       banner.innerHTML =
         `<strong>${escapeHtml(title)}</strong>` +
         `<span>${escapeHtml(body)}</span>` +
         (prob != null
-          ? `<div class="prob">Probabilidad de odio: ${Number(prob).toFixed(3)} (umbral ${THR})</div>`
-          : "");
+          ? `<div class="prob">Señal del modelo: ${Number(prob).toFixed(3)} (umbral ${THR})${extra ? " · " + escapeHtml(extra) : ""}</div>`
+          : extra
+            ? `<div class="prob">${escapeHtml(extra)}</div>`
+            : "");
     }
 
     function hideBanner() {
-      banner.className = "banner";
+      banner.className = "banner sans";
       banner.innerHTML = "";
     }
 
+    function safetyRules(text) {
+      const t = text.normalize("NFC");
+      if (DANO.test(t)) return { block: true, reason: "norma del sitio: contenido que invita a hacerse daño" };
+      if (INSULTOS.test(t)) return { block: true, reason: "norma del sitio: insulto o agresión" };
+      return { block: false, reason: null };
+    }
+
     function updateStatus() {
-      if (useApi.checked) {
-        statusEl.textContent =
-          "Modelo real (Space). Si falla, despertá el Space o usá el modo simulado.";
-      } else {
-        statusEl.textContent = "Modo simulado offline (lista corta de palabras).";
-      }
+      statusEl.textContent = useApi.checked
+        ? "Modelo A3 (Space) + reglas de seguridad del sitio."
+        : "Solo reglas de seguridad (sin modelo).";
     }
 
     useApi.addEventListener("change", updateStatus);
     updateStatus();
     renderList();
 
-    document.querySelectorAll(".chip").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        textEl.value = btn.dataset.sample || "";
-        hideBanner();
-        textEl.focus();
-      });
-    });
-
     clearBtn.addEventListener("click", () => {
-      if (confirm("¿Borrar todos los comentarios guardados en este navegador?")) {
-        saveComments([]);
+      if (confirm("¿Restablecer los comentarios iniciales de la demo?")) {
+        saveComments(SEED);
         renderList();
         hideBanner();
       }
@@ -442,15 +766,12 @@
       const block =
         /odio|ocultar/i.test(etiqueta) &&
         !/sin odio|mostraría|vacío|largo/i.test(etiqueta);
-      return { block, prob: Number.isFinite(prob) ? prob : null, etiqueta };
+      return { block, prob: Number.isFinite(prob) ? prob : null };
     }
 
     async function scoreWithApi(text) {
       const base = (apiUrl.value || SPACE_DEFAULT).replace(/\/$/, "");
-      const endpoints = [
-        `${base}/gradio_api/call/predict`,
-        `${base}/api/predict`,
-      ];
+      const endpoints = [`${base}/gradio_api/call/predict`, `${base}/api/predict`];
       let lastErr;
       for (const url of endpoints) {
         try {
@@ -461,8 +782,7 @@
               body: JSON.stringify({ data: [text, THR] }),
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const json = await res.json();
-            return parsePayload(json.data);
+            return parsePayload((await res.json()).data);
           }
           const res = await fetch(url, {
             method: "POST",
@@ -474,12 +794,8 @@
           if (!event_id) throw new Error("Sin event_id");
           const stream = await fetch(`${url}/${event_id}`);
           const raw = await stream.text();
-          const dataLine = raw
-            .trim()
-            .split("\n")
-            .reverse()
-            .find((l) => l.startsWith("data: "));
-          if (!dataLine) throw new Error("Respuesta vacía de Gradio");
+          const dataLine = raw.trim().split("\n").reverse().find((l) => l.startsWith("data: "));
+          if (!dataLine) throw new Error("Respuesta vacía");
           return parsePayload(JSON.parse(dataLine.slice(6)));
         } catch (err) {
           lastErr = err;
@@ -488,66 +804,62 @@
       throw lastErr || new Error("No se pudo llamar a la API");
     }
 
-    function scoreLocal(text) {
-      const block = GROSERIAS.test(text);
-      return { block, prob: block ? 0.91 : 0.08 };
-    }
-
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const text = textEl.value.trim();
       if (!text) return;
       hideBanner();
       submitBtn.disabled = true;
-      submitBtn.textContent = "Analizando…";
+      submitBtn.textContent = "Publicando…";
 
-      let result;
-      try {
-        result = useApi.checked ? await scoreWithApi(text) : scoreLocal(text);
-      } catch (err) {
-        statusEl.textContent =
-          "Falló la API. Despertá el Space o desmarcá «Usar modelo real».";
-        showBanner(
-          "block",
-          "No se pudo moderar",
-          "Sin respuesta del modelo no publicamos el comentario. Probá de nuevo en unos segundos.",
-          null
-        );
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Publicar comentario";
-        return;
+      const rules = safetyRules(text);
+      let model = { block: false, prob: null };
+
+      if (useApi.checked) {
+        try {
+          model = await scoreWithApi(text);
+        } catch {
+          if (!rules.block) {
+            showBanner(
+              "block",
+              "No se pudo moderar",
+              "El servicio de moderación no respondió. Intentá de nuevo en unos segundos.",
+              null
+            );
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Publicar";
+            return;
+          }
+        }
       }
 
-      if (result.block) {
-        // No se guarda ni se muestra en la lista.
-        showBanner("block", BLOCK_TITLE, BLOCK_BODY, result.prob);
+      if (rules.block || model.block) {
+        showBanner(
+          "block",
+          BLOCK_TITLE,
+          BLOCK_BODY,
+          model.prob,
+          rules.block ? rules.reason : "bloqueado por el modelo"
+        );
         submitBtn.disabled = false;
-        submitBtn.textContent = "Publicar comentario";
+        submitBtn.textContent = "Publicar";
         return;
       }
 
       const item = {
         author: authorEl.value.trim() || "Anónimo",
         text,
-        prob: result.prob ?? 0,
-        when: new Date().toLocaleString("es-CO", {
-          dateStyle: "short",
-          timeStyle: "short",
-        }),
+        prob: model.prob ?? 0,
+        when: "Ahora",
       };
       const items = loadComments();
       items.unshift(item);
       saveComments(items);
       renderList();
-      showBanner(
-        "ok",
-        "Comentario publicado",
-        "Pasó el filtro de normas de la comunidad y quedó guardado en este navegador.",
-        result.prob
-      );
+      showBanner("ok", "Comentario publicado", "Tu mensaje quedó visible bajo la nota.", model.prob);
       textEl.value = "";
       submitBtn.disabled = false;
-      submitBtn.textContent = "Publicar comentario";
+      submitBtn.textContent = "Publicar";
     });
   </script>
 </body>
