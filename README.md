@@ -8,33 +8,35 @@ Detección de comentarios con odio en español. Proyecto de Aplicación 2 (Huggi
 
 **`proyecto_toxicidad_es.ipynb`** — informe técnico (Fase 0, EDA, preparación, 3 arquitecturas + línea base, errores, costos, app).
 
-| Extra (demo) | Dónde |
+## Demos en vivo
+
+| Rol | URL |
 |---|---|
-| Blog de prueba | `blog/index.html` (modo simulado o API del Space) |
-| App Gradio | https://huggingface.co/spaces/tatisvivass/menos-odio-a-la-vista |
-| App en vivo | https://tatisvivass-menos-odio-a-la-vista.hf.space |
+| **Laboratorio** (probar el modelo: umbral, probabilidad) | https://huggingface.co/spaces/tatisvivass/menos-odio-a-la-vista |
+| **LA PLAZA** (blog con modelo A3 — Streamlit) | https://proyecto-2-eybyvirfnmkjnzroq5qy43.streamlit.app |
+| **LA PLAZA estático** (HTML; reglas locales; el Gradio puede fallar) | https://huggingface.co/spaces/tatisvivass/la-plaza-demo · app https://tatisvivass-la-plaza-demo.static.hf.space |
 | Pesos A3 | https://huggingface.co/tatisvivass/menos-odio-a3-robertuito |
 | Extensión de navegador | Equipo |
 
-## Repo (limpio)
+Para la demo del pitch preferí **Streamlit** (modelo en proceso). El Space Gradio de HF quedó como **laboratorio**. El estático es respaldo visual: sin Python debajo, depende de reglas JS (+ API si el Gradio responde).
+
+## Repo
 
 ```
 proyecto_toxicidad_es.ipynb   ← entregable
-blog/index.html               ← demo del pitch
-space/                        ← código del Space (pesos en el Hub)
+blog/                         ← HTML estático + assets
+plaza_streamlit/              ← app Streamlit (LA PLAZA)
+space/                        ← laboratorio Gradio
 README.md
 .gitignore
 ```
 
-Los scripts `.py` locales y los pesos (`a3_model/`) quedan fuera de git. El modelo vive en Hugging Face Hub.
-
-## Datos y modelo elegido
+## Datos y modelo
 
 - Corpus: `piuba-bigdata/contextualized_hate_speech` (etiqueta `HATEFUL`).
-- Evaluación principal: partición por artículo.
-- Modelo seleccionado: **RoBERTuito** fine-tuned (A3), umbral ~0.28 (elegido en DEV).
-- Entrenamiento reportado: Apple Silicon (MPS), ~55 min.
+- Evaluación principal: partición por artículo (`split_articulo`, seed 42).
+- Modelo: **RoBERTuito** fine-tuned (A3), umbral ~0.28 (DEV). F1 odio test ≈ 0,653.
 
-## Cómo trabajar el cuaderno
+## Cuaderno
 
-Abrir el `.ipynb` (local o Colab GPU T4), ejecutar en orden. Con `TRAIN_A3=False` se reutilizan los pesos ya entrenados.
+Abrir el `.ipynb` (local o Colab GPU T4), ejecutar en orden. Con `TRAIN_A3=False` se reutilizan los pesos del Hub.
