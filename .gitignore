@@ -14,6 +14,12 @@ space/a3_metrics.json
 !space/app.py
 !space/requirements.txt
 !space/README.md
+!space_plaza/app.py
+!space_plaza/requirements.txt
+!space_plaza/README.md
+!plaza_streamlit/streamlit_app.py
+!plaza_streamlit/requirements.txt
+!plaza_streamlit/README.md
 
 # Entorno y artefactos locales de ejecución
 .venv/
