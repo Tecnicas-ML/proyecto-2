@@ -3,239 +3,551 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bitácora del barrio — demo de moderación</title>
+  <title>El Diario del Barrio — demo de moderación</title>
   <style>
     :root {
-      --ink: #1c1917;
-      --paper: #f7f1e8;
-      --accent: #0f6b5c;
-      --warn: #8a3b12;
-      --muted: #5c564e;
-      --card: #fffaf3;
-      --line: #e4d8c8;
+      --ink: #12141a;
+      --paper: #f3f5f8;
+      --surface: #ffffff;
+      --accent: #0b5fff;
+      --accent-ink: #0739a0;
+      --warn-bg: #fff1f0;
+      --warn-border: #f0b4ae;
+      --warn-ink: #8f1d18;
+      --ok-bg: #eef8f1;
+      --ok-border: #b7dfc2;
+      --ok-ink: #1a5c32;
+      --muted: #5b6472;
+      --line: #d9dee7;
+      --mast: #0e1525;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      font-family: "Source Serif 4", "Libre Baskerville", "Iowan Old Style", Georgia, serif;
       color: var(--ink);
       background:
-        radial-gradient(circle at 10% 0%, #efe4d4 0%, transparent 45%),
-        radial-gradient(circle at 90% 20%, #e7f0ec 0%, transparent 40%),
+        linear-gradient(180deg, #e8edf5 0%, transparent 220px),
         var(--paper);
       min-height: 100vh;
     }
-    header {
-      padding: 2.5rem 1.25rem 1rem;
-      max-width: 42rem;
+    .masthead {
+      background: var(--mast);
+      color: #f5f7fb;
+      padding: 0.85rem 1.25rem;
+    }
+    .masthead-inner {
+      max-width: 44rem;
       margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
-    .brand {
-      font-size: clamp(2rem, 6vw, 3rem);
-      line-height: 1.05;
-      letter-spacing: -0.02em;
-      margin: 0 0 0.5rem;
-    }
-    .lede {
-      color: var(--muted);
-      font-size: 1.05rem;
+    .mast-brand {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.95rem;
       margin: 0;
-      max-width: 36rem;
+    }
+    .mast-tag {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 0.75rem;
+      opacity: 0.72;
+      margin: 0;
     }
     main {
-      max-width: 42rem;
+      max-width: 44rem;
       margin: 0 auto;
-      padding: 0 1.25rem 3rem;
+      padding: 1.75rem 1.25rem 3rem;
     }
-    article {
-      background: var(--card);
+    .kicker {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-ink);
+      margin: 0 0 0.55rem;
+    }
+    h1 {
+      font-size: clamp(1.85rem, 5vw, 2.55rem);
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.7rem;
+    }
+    .byline {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin: 0 0 1.4rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--line);
+    }
+    article p {
+      font-size: 1.08rem;
+      line-height: 1.65;
+      margin: 0 0 1rem;
+    }
+    .demo-note {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 0.82rem;
+      color: var(--muted);
+      background: #eef2f8;
+      border: 1px solid var(--line);
+      border-radius: 0.65rem;
+      padding: 0.7rem 0.85rem;
+      margin: 1.5rem 0 0;
+    }
+    .comments {
+      margin-top: 2rem;
+      background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 1rem;
-      padding: 1.25rem 1.35rem 1.5rem;
-      margin: 1.5rem 0;
+      padding: 1.15rem 1.2rem 1.35rem;
+      box-shadow: 0 10px 30px rgba(18, 20, 26, 0.04);
     }
-    article h2 { margin: 0 0 0.6rem; font-size: 1.35rem; }
-    article p { margin: 0; line-height: 1.55; color: #2a2622; }
-    .meta { margin-top: 0.85rem; font-size: 0.85rem; color: var(--muted); }
+    .comments h2 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 1.05rem;
+      margin: 0 0 0.85rem;
+    }
     .controls {
-      display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;
-      margin: 1rem 0 0.25rem; font-size: 0.95rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 0.55rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 0.88rem;
+      color: var(--muted);
     }
-    .controls label { display: flex; gap: 0.4rem; align-items: center; color: var(--muted); }
-    input[type="url"], textarea {
+    .controls label { display: flex; gap: 0.4rem; align-items: center; }
+    #apiUrl, #author, #text {
       width: 100%;
       border: 1px solid var(--line);
-      border-radius: 0.7rem;
-      padding: 0.75rem 0.9rem;
+      border-radius: 0.65rem;
+      padding: 0.7rem 0.85rem;
       font: inherit;
       background: #fff;
       color: var(--ink);
     }
-    textarea { min-height: 6rem; resize: vertical; }
+    #author { margin-bottom: 0.55rem; }
+    #apiUrl { margin-bottom: 0.55rem; font-family: "Avenir Next", "Segoe UI", sans-serif; font-size: 0.85rem; }
+    #text { min-height: 5.5rem; resize: vertical; margin-bottom: 0.55rem; }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+    }
     button {
       appearance: none;
       border: 0;
       background: var(--accent);
-      color: #f7fffc;
-      font: inherit;
-      font-weight: 600;
-      padding: 0.7rem 1.1rem;
+      color: #fff;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-weight: 700;
+      font-size: 0.92rem;
+      padding: 0.7rem 1.05rem;
+      border-radius: 0.55rem;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.55; cursor: wait; }
+    button.ghost {
+      background: transparent;
+      color: var(--accent-ink);
+      border: 1px solid var(--line);
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 0.65rem 0 0.85rem;
+    }
+    .chip {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #f7f9fc;
+      color: var(--ink);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 0.78rem;
+      padding: 0.35rem 0.65rem;
       border-radius: 999px;
       cursor: pointer;
     }
-    button.secondary {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--accent);
+    .chip:hover { border-color: var(--accent); color: var(--accent-ink); }
+    .status {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin: 0.55rem 0 0;
     }
-    #comments { display: grid; gap: 0.85rem; margin-top: 1rem; }
-    .comment, .hidden-notice {
+    .banner {
+      display: none;
+      margin: 0.85rem 0 0;
+      padding: 0.85rem 0.95rem;
+      border-radius: 0.7rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+    .banner.show { display: block; }
+    .banner.block {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      color: var(--warn-ink);
+    }
+    .banner.ok {
+      background: var(--ok-bg);
+      border: 1px solid var(--ok-border);
+      color: var(--ok-ink);
+    }
+    .banner strong { display: block; margin-bottom: 0.25rem; }
+    .banner .prob {
+      margin-top: 0.4rem;
+      font-size: 0.78rem;
+      opacity: 0.85;
+    }
+    #list {
+      display: grid;
+      gap: 0.75rem;
+      margin-top: 1.1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+    }
+    .comment {
       border: 1px solid var(--line);
-      border-radius: 0.85rem;
-      padding: 0.9rem 1rem;
-      background: #fff;
+      border-radius: 0.75rem;
+      padding: 0.8rem 0.9rem;
+      background: #fbfcfe;
     }
-    .hidden-notice {
-      border-color: #e8c4b0;
-      background: #fff4ec;
-      color: var(--warn);
+    .comment .who {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-ink);
+      margin: 0 0 0.3rem;
     }
-    .hidden-notice strong { display: block; margin-bottom: 0.35rem; }
-    .prob { font-size: 0.8rem; color: var(--muted); margin-top: 0.4rem; }
+    .comment .body { margin: 0; line-height: 1.45; }
+    .comment .meta {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+    .empty {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin: 0;
+    }
     footer {
-      max-width: 42rem; margin: 0 auto; padding: 0 1.25rem 2.5rem;
-      color: var(--muted); font-size: 0.85rem;
+      max-width: 44rem;
+      margin: 0 auto;
+      padding: 0 1.25rem 2.5rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.45;
     }
   </style>
 </head>
 <body>
-  <header>
-    <p class="brand">Bitácora del barrio</p>
-    <p class="lede">Una nota de prueba. Abajo podés dejar un comentario: si el filtro detecta odio, lo ocultamos con un aviso de normas —para cuidar a quien lee.</p>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <p class="mast-brand">El Diario del Barrio</p>
+      <p class="mast-tag">Edición demo · Moderación con IA</p>
+    </div>
   </header>
 
   <main>
+    <p class="kicker">Ciudad · Comunidad</p>
+    <h1>La plaza volvió a llenarse: vecinos celebran la reapertura</h1>
+    <p class="byline">Por redacción local · Hoy · 3 min de lectura</p>
+
     <article>
-      <h2>La plaza volvió a llenarse de voces</h2>
       <p>
         Después de meses de obras, la plaza del centro abrió otra vez. Hubo música,
-        puestos de comida y vecinas contando cómo vivieron el cambio. Esta bitácora
-        es solo una demo: lo importante está en la sección de comentarios.
+        puestos de comida y vecinas contando cómo vivieron el cambio. Las autoridades
+        prometieron mantener el espacio limpio y seguro para familias y adolescentes.
       </p>
-      <p class="meta">Demo del proyecto «Menos odio a la vista» · español</p>
+      <p>
+        En los comentarios de esta nota podés opinar. Antes de publicar, un filtro
+        automático revisa si el texto incumple las normas de la comunidad. Si detecta
+        odio o agresión, <strong>el comentario no se envía</strong>.
+      </p>
+      <p class="demo-note">
+        Demo del proyecto «Menos odio a la vista». HTML estático + modelo A3 (RoBERTuito)
+        en Hugging Face. Los comentarios aprobados se guardan en este navegador (caché local).
+      </p>
     </article>
 
-    <section>
+    <section class="comments" aria-labelledby="comments-title">
+      <h2 id="comments-title">Comentarios</h2>
+
       <div class="controls">
         <label>
-          <input type="checkbox" id="useApi" />
-          Usar API real (Gradio / Space)
+          <input type="checkbox" id="useApi" checked />
+          Usar modelo real (Space HF)
         </label>
       </div>
-      <input id="apiUrl" type="url" placeholder="URL del Space o http://127.0.0.1:7860" value="http://127.0.0.1:7860" />
+      <input
+        id="apiUrl"
+        type="url"
+        value="https://tatisvivass-menos-odio-a-la-vista.hf.space"
+        aria-label="URL del Space"
+      />
 
-      <form id="form" style="margin-top:0.9rem; display:grid; gap:0.7rem;">
-        <textarea id="text" placeholder="Escribí un comentario…" maxlength="500" required></textarea>
-        <button type="submit">Publicar</button>
+      <div class="chips" aria-label="Ejemplos rápidos">
+        <button type="button" class="chip" data-sample="Qué buena nota, gracias por explicar el tema con claridad.">Limpio</button>
+        <button type="button" class="chip" data-sample="No estoy de acuerdo con la medida, me parece injusta.">Disenso</button>
+        <button type="button" class="chip" data-sample="Ojalá desaparezcan todos esos negros de mierda de una vez.">Agresivo</button>
+        <button type="button" class="chip" data-sample="Hay que echar a todos los inmigrantes del país ya.">Expulsión</button>
+      </div>
+
+      <form id="form">
+        <input id="author" type="text" maxlength="40" placeholder="Tu nombre (opcional)" value="Lectora" />
+        <textarea id="text" maxlength="500" placeholder="Escribí tu comentario…" required></textarea>
+        <div class="row">
+          <button type="submit" id="submitBtn">Publicar comentario</button>
+          <button type="button" class="ghost" id="clearBtn">Vaciar caché</button>
+        </div>
       </form>
-      <div id="comments" aria-live="polite"></div>
+
+      <p id="status" class="status">Conectado al Space. Si está dormido, abrilo una vez en otra pestaña.</p>
+      <div id="banner" class="banner" role="status" aria-live="polite"></div>
+
+      <div id="list"></div>
     </section>
   </main>
 
   <footer>
-    El modo simulado usa una lista corta de palabras agresivas solo para la demo offline.
-    Con la API real se usa el modelo A3 (RoBERTuito). No sustituye moderación humana.
+    Normas de la comunidad: no se permiten insultos, agresiones ni discursos de odio hacia
+    personas o grupos. El filtro es automático (umbral ≈ 0,28) y no sustituye moderación humana.
+    Modo offline: lista corta de palabras solo para probar sin API.
   </footer>
 
   <script>
+    const SPACE_DEFAULT = "https://tatisvivass-menos-odio-a-la-vista.hf.space";
+    const THR = 0.28;
+    const STORAGE_KEY = "diario-barrio-comments-v1";
     const GROSERIAS = /\b(mierda|puto|puta|idiota|imb[eé]cil|negro de mierda|basura|pelotudo|boludo)\b/i;
-    const NOTICE =
-      "Este comentario se ocultó porque podría incumplir las normas de la comunidad. Queremos un espacio donde todas las personas —incluidas chicas, niños y adolescentes— puedan leer sin tropiezos con agresiones.";
 
-    const commentsEl = document.getElementById("comments");
+    const BLOCK_TITLE = "Violación de las normas de la comunidad";
+    const BLOCK_BODY =
+      "Tu comentario no se publicó. Puede herir a quien lee —en especial a chicas, niños, adolescentes y comunidades vulnerables—. " +
+      "Revisá el tono: rechazamos insultos, amenazas y discursos de odio. Podés reformular y volver a intentar.";
+
     const form = document.getElementById("form");
     const textEl = document.getElementById("text");
+    const authorEl = document.getElementById("author");
     const useApi = document.getElementById("useApi");
     const apiUrl = document.getElementById("apiUrl");
+    const statusEl = document.getElementById("status");
+    const banner = document.getElementById("banner");
+    const listEl = document.getElementById("list");
+    const submitBtn = document.getElementById("submitBtn");
+    const clearBtn = document.getElementById("clearBtn");
 
-    function renderShown(text, prob) {
-      const div = document.createElement("div");
-      div.className = "comment";
-      div.innerHTML = `<div>${escapeHtml(text)}</div>` +
-        (prob != null ? `<div class="prob">Prob. odio: ${prob.toFixed(3)}</div>` : "");
-      commentsEl.prepend(div);
+    function loadComments() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      } catch {
+        return [];
+      }
     }
 
-    function renderHidden(text, prob) {
-      const div = document.createElement("div");
-      div.className = "hidden-notice";
-      const title = document.createElement("strong");
-      title.textContent = "Normas de la comunidad";
-      const msg = document.createElement("span");
-      msg.textContent = NOTICE;
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "secondary";
-      btn.style.marginTop = "0.7rem";
-      btn.textContent = "Mostrar de todos modos";
-      btn.onclick = () => {
-        div.remove();
-        renderShown(text + "", prob);
-        const first = commentsEl.firstElementChild;
-        if (first && prob != null) {
-          const p = first.querySelector(".prob");
-          if (p) p.textContent = `Prob. odio: ${prob.toFixed(3)} · mostrado por elección`;
-        }
-      };
-      div.append(title, msg, btn);
-      commentsEl.prepend(div);
+    function saveComments(items) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    }
+
+    function renderList() {
+      const items = loadComments();
+      listEl.innerHTML = "";
+      if (!items.length) {
+        const p = document.createElement("p");
+        p.className = "empty";
+        p.textContent = "Todavía no hay comentarios publicados. Sé la primera persona en opinar con respeto.";
+        listEl.appendChild(p);
+        return;
+      }
+      for (const item of items) {
+        const div = document.createElement("div");
+        div.className = "comment";
+        div.innerHTML =
+          `<p class="who">${escapeHtml(item.author || "Anónimo")}</p>` +
+          `<p class="body">${escapeHtml(item.text)}</p>` +
+          `<p class="meta">${escapeHtml(item.when)} · prob. odio ${Number(item.prob).toFixed(3)} · aprobado</p>`;
+        listEl.appendChild(div);
+      }
     }
 
     function escapeHtml(s) {
-      return s.replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+      return String(s).replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
+      );
+    }
+
+    function showBanner(kind, title, body, prob) {
+      banner.className = `banner show ${kind}`;
+      banner.innerHTML =
+        `<strong>${escapeHtml(title)}</strong>` +
+        `<span>${escapeHtml(body)}</span>` +
+        (prob != null
+          ? `<div class="prob">Probabilidad de odio: ${Number(prob).toFixed(3)} (umbral ${THR})</div>`
+          : "");
+    }
+
+    function hideBanner() {
+      banner.className = "banner";
+      banner.innerHTML = "";
+    }
+
+    function updateStatus() {
+      if (useApi.checked) {
+        statusEl.textContent =
+          "Modelo real (Space). Si falla, despertá el Space o usá el modo simulado.";
+      } else {
+        statusEl.textContent = "Modo simulado offline (lista corta de palabras).";
+      }
+    }
+
+    useApi.addEventListener("change", updateStatus);
+    updateStatus();
+    renderList();
+
+    document.querySelectorAll(".chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        textEl.value = btn.dataset.sample || "";
+        hideBanner();
+        textEl.focus();
+      });
+    });
+
+    clearBtn.addEventListener("click", () => {
+      if (confirm("¿Borrar todos los comentarios guardados en este navegador?")) {
+        saveComments([]);
+        renderList();
+        hideBanner();
+      }
+    });
+
+    function parsePayload(payload) {
+      const etiqueta = String(payload?.[0] ?? "");
+      const prob = Number(payload?.[1]);
+      const block =
+        /odio|ocultar/i.test(etiqueta) &&
+        !/sin odio|mostraría|vacío|largo/i.test(etiqueta);
+      return { block, prob: Number.isFinite(prob) ? prob : null, etiqueta };
     }
 
     async function scoreWithApi(text) {
-      const base = apiUrl.value.replace(/\/$/, "");
-      // Gradio 4+/5 client protocol (call named endpoint /predict if configured)
-      const res = await fetch(`${base}/gradio_api/call/predict`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: [text, 0.28] }),
-      });
-      if (!res.ok) throw new Error("No se pudo llamar a la API");
-      const { event_id } = await res.json();
-      const stream = await fetch(`${base}/gradio_api/call/predict/${event_id}`);
-      const raw = await stream.text();
-      const lines = raw.trim().split("\n");
-      const dataLine = lines.reverse().find((l) => l.startsWith("data: "));
-      if (!dataLine) throw new Error("Respuesta vacía de Gradio");
-      const payload = JSON.parse(dataLine.slice(6));
-      // outputs: [etiqueta, prob, aviso]
-      const prob = Number(payload[1]);
-      const hide = String(payload[0]).toLowerCase().includes("odio");
-      return { hide, prob };
+      const base = (apiUrl.value || SPACE_DEFAULT).replace(/\/$/, "");
+      const endpoints = [
+        `${base}/gradio_api/call/predict`,
+        `${base}/api/predict`,
+      ];
+      let lastErr;
+      for (const url of endpoints) {
+        try {
+          if (url.endsWith("/api/predict")) {
+            const res = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ data: [text, THR] }),
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const json = await res.json();
+            return parsePayload(json.data);
+          }
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ data: [text, THR] }),
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const { event_id } = await res.json();
+          if (!event_id) throw new Error("Sin event_id");
+          const stream = await fetch(`${url}/${event_id}`);
+          const raw = await stream.text();
+          const dataLine = raw
+            .trim()
+            .split("\n")
+            .reverse()
+            .find((l) => l.startsWith("data: "));
+          if (!dataLine) throw new Error("Respuesta vacía de Gradio");
+          return parsePayload(JSON.parse(dataLine.slice(6)));
+        } catch (err) {
+          lastErr = err;
+        }
+      }
+      throw lastErr || new Error("No se pudo llamar a la API");
     }
 
     function scoreLocal(text) {
-      const hide = GROSERIAS.test(text);
-      return { hide, prob: hide ? 0.91 : 0.08 };
+      const block = GROSERIAS.test(text);
+      return { block, prob: block ? 0.91 : 0.08 };
     }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const text = textEl.value.trim();
       if (!text) return;
+      hideBanner();
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Analizando…";
+
       let result;
       try {
         result = useApi.checked ? await scoreWithApi(text) : scoreLocal(text);
       } catch (err) {
-        alert("Falló la API. Probá el modo simulado o revisá la URL.\n" + err.message);
+        statusEl.textContent =
+          "Falló la API. Despertá el Space o desmarcá «Usar modelo real».";
+        showBanner(
+          "block",
+          "No se pudo moderar",
+          "Sin respuesta del modelo no publicamos el comentario. Probá de nuevo en unos segundos.",
+          null
+        );
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Publicar comentario";
         return;
       }
-      if (result.hide) renderHidden(text, result.prob);
-      else renderShown(text, result.prob);
+
+      if (result.block) {
+        // No se guarda ni se muestra en la lista.
+        showBanner("block", BLOCK_TITLE, BLOCK_BODY, result.prob);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Publicar comentario";
+        return;
+      }
+
+      const item = {
+        author: authorEl.value.trim() || "Anónimo",
+        text,
+        prob: result.prob ?? 0,
+        when: new Date().toLocaleString("es-CO", {
+          dateStyle: "short",
+          timeStyle: "short",
+        }),
+      };
+      const items = loadComments();
+      items.unshift(item);
+      saveComments(items);
+      renderList();
+      showBanner(
+        "ok",
+        "Comentario publicado",
+        "Pasó el filtro de normas de la comunidad y quedó guardado en este navegador.",
+        result.prob
+      );
       textEl.value = "";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Publicar comentario";
     });
   </script>
 </body>

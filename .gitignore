@@ -6,8 +6,14 @@ registro_revision_ia.md
 # Laboratorio local: scripts/app Python (el entregable es el .ipynb; el deploy va en Hugging Face)
 scripts/
 app/
-space/
 *.py
+
+# Space: versionar código; excluir pesos (se suben a HF, no a git)
+space/a3_model/
+space/a3_metrics.json
+!space/app.py
+!space/requirements.txt
+!space/README.md
 
 # Entorno y artefactos locales de ejecución
 .venv/
@@ -15,4 +21,11 @@ artifacts/
 __pycache__/
 *.parquet
 prep_config.json
-requirements.txt
+/requirements.txt
+
+# Pesos del modelo A3 (subir a Hugging Face Hub, no al git)
+a3_model/
+**/a3_model/
+*.safetensors
+*.joblib
+*.keras
