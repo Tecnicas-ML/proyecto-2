@@ -121,37 +121,52 @@ st.markdown(
     f"""
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,700&display=swap');
-  .stApp {{ background: #fafafa; }}
+  .stApp {{ background: #fafafa !important; color: #121212 !important; }}
+  .stApp p, .stApp li, .stApp span, .stApp label, .stApp div,
+  [data-testid="stMarkdownContainer"] p,
+  [data-testid="stMarkdownContainer"] {{
+    color: #121212 !important;
+  }}
+  [data-testid="stCaption"] {{ color: #3d3d3d !important; }}
+  h1, h2, h3, h4, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
+    color: #121212 !important;
+  }}
   #MainMenu, footer, header {{ visibility: hidden; }}
   .block-container {{ padding-top: 0 !important; max-width: 72rem; }}
-  .lp-top {{ background:#111; color:#ddd; font-size:.72rem; padding:.45rem 0;
+  .lp-top {{ background:#111 !important; color:#eee !important; font-size:.72rem; padding:.45rem 0;
     font-family:"Libre Franklin",system-ui,sans-serif; margin: 0 -1rem; padding-left:1rem; padding-right:1rem; }}
+  .lp-top span {{ color:#eee !important; }}
   .lp-brand {{ background:#fff; border-bottom:3px solid #e10600; padding:.75rem 0;
     margin: 0 -1rem; padding-left:1rem; padding-right:1rem;
     display:flex; justify-content:space-between; align-items:center; gap:1rem; }}
   .lp-brand img {{ height: 3rem; border-radius: 4px; }}
   .lp-pill {{ font-family:"Libre Franklin",system-ui,sans-serif; font-size:.68rem; font-weight:700;
     text-transform:uppercase; letter-spacing:.06em; border:1px solid #e2e2e2;
-    padding:.3rem .55rem; border-radius:999px; color:#5c5c5c; }}
-  .lp-kicker {{ color:#e10600; font-family:"Libre Franklin",system-ui,sans-serif;
+    padding:.3rem .55rem; border-radius:999px; color:#444 !important; }}
+  .lp-kicker {{ color:#e10600 !important; font-family:"Libre Franklin",system-ui,sans-serif;
     font-size:.78rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }}
   .lp-title {{ font-family:"Source Serif 4",Georgia,serif; font-size:clamp(1.7rem,4vw,2.5rem);
-    line-height:1.12; font-weight:700; margin:.35rem 0 .7rem; color:#1a1a1a; }}
-  .lp-by {{ font-family:"Libre Franklin",system-ui,sans-serif; font-size:.86rem; color:#5c5c5c;
+    line-height:1.12; font-weight:700; margin:.35rem 0 .7rem; color:#121212 !important; }}
+  .lp-by {{ font-family:"Libre Franklin",system-ui,sans-serif; font-size:.86rem; color:#3d3d3d !important;
     padding-bottom:1rem; border-bottom:1px solid #e2e2e2; margin-bottom:1rem; }}
-  .lp-lead {{ font-family:"Source Serif 4",Georgia,serif; font-size:1.15rem; line-height:1.55; font-weight:600; }}
-  .lp-body {{ font-family:"Source Serif 4",Georgia,serif; font-size:1.05rem; line-height:1.7; color:#1a1a1a; }}
+  .lp-lead {{ font-family:"Source Serif 4",Georgia,serif; font-size:1.15rem; line-height:1.55;
+    font-weight:600; color:#121212 !important; }}
+  .lp-body {{ font-family:"Source Serif 4",Georgia,serif; font-size:1.05rem; line-height:1.7;
+    color:#121212 !important; }}
+  .lp-body strong {{ color:#121212 !important; }}
   .lp-pull {{ border-left:3px solid #e10600; padding-left:.85rem; font-size:1.2rem; font-weight:600;
-    font-family:"Source Serif 4",Georgia,serif; margin:1rem 0; }}
+    font-family:"Source Serif 4",Georgia,serif; margin:1rem 0; color:#121212 !important; }}
   .lp-comments {{ background:#fff; border:1px solid #e2e2e2; border-top:3px solid #e10600;
     padding:1.1rem 1.15rem 1.25rem; margin-top:1.25rem; }}
   .lp-cmt {{ border-top:1px solid #e2e2e2; padding:.85rem 0; }}
-  .lp-cmt .who {{ font-family:"Libre Franklin",system-ui,sans-serif; font-weight:700; font-size:.86rem; margin:0 0 .25rem; }}
-  .lp-cmt .body {{ font-family:"Source Serif 4",Georgia,serif; margin:0; line-height:1.5; }}
+  .lp-cmt .who {{ font-family:"Libre Franklin",system-ui,sans-serif; font-weight:700; font-size:.86rem;
+    margin:0 0 .25rem; color:#121212 !important; }}
+  .lp-cmt .body {{ font-family:"Source Serif 4",Georgia,serif; margin:0; line-height:1.5;
+    color:#121212 !important; }}
   div[data-testid="stForm"] {{ border:0; padding:0; }}
-  .stButton>button {{ background:#e10600; color:#fff; border:0; border-radius:2px;
-    font-family:"Libre Franklin",system-ui,sans-serif; font-weight:700; }}
-  .stButton>button:hover {{ background:#b00000; color:#fff; border:0; }}
+  .stButton>button {{ background:#e10600 !important; color:#fff !important; border:0 !important;
+    border-radius:2px !important; font-family:"Libre Franklin",system-ui,sans-serif !important; font-weight:700 !important; }}
+  .stButton>button:hover {{ background:#b00000 !important; color:#fff !important; border:0 !important; }}
 </style>
 <div class="lp-top"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
   <span>Bogotá · demo académica</span><span>Medio ficticio · Menos odio a la vista</span>
