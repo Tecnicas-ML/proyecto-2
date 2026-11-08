@@ -9,18 +9,13 @@ Cloud: Main file path = plaza_streamlit/streamlit_app.py
 """
 from __future__ import annotations
 
-import os
 import re
-from pathlib import Path
 
 import streamlit as st
-import torch
-from huggingface_hub import snapshot_download
 
-from multitarea_es import HEADS, Predictor
+from carga_modelo import load_predictor
+from multitarea_es import HEADS
 
-ROOT = Path(__file__).resolve().parent
-MODEL_ID = os.environ.get("HF_MODEL_ID", "tatisvivass/menos-odio-v5-multitarea")
 MAX_CHARS = 500
 TITULO_NOTA = "La plaza del centro reabrió entre música, puestos y vecinos que volvieron a encontrarse"
 # Regla de esta comunidad: la vulgaridad sola se publica; insulto y odio grupal no.
@@ -98,19 +93,6 @@ def rules_block(text: str, con_insultos: bool) -> bool:
     La lista de insultos solo actúa si el modelo no respondió: castiga usos no agresivos."""
     t = soft_normalize(text)
     return bool(DANO.search(t) or ODIO.search(t) or (con_insultos and INSULTOS.search(t)))
-
-
-def ruta_modelo() -> str:
-    """Carpeta `modelo_v5` local (o MODELO_DIR) si existe; si no, descarga desde el Hub."""
-    for candidata in (os.environ.get("MODELO_DIR"), ROOT / "modelo_v5"):
-        if candidata and Path(candidata, "multitarea_config.json").exists():
-            return str(candidata)
-    return snapshot_download(MODEL_ID)
-
-
-@st.cache_resource(show_spinner="Cargando modelo v5 (primera vez puede tardar)…")
-def load_predictor() -> Predictor:
-    return Predictor.cargar(ruta_modelo(), device=torch.device("cpu"))
 
 
 def score_signals(texto: str) -> dict:
@@ -319,6 +301,8 @@ for item in st.session_state.comments:
     )
 
 st.markdown("</div>", unsafe_allow_html=True)
+
+st.page_link("pages/laboratorio.py", label="🛡️ Abrir el laboratorio del modelo (tres señales y contexto)")
 
 with st.expander("Opciones de demo (equipo)"):
     if st.button("Restablecer comentarios"):

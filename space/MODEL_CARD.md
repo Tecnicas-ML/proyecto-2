@@ -59,7 +59,7 @@ Pendiente de verificar: la ficha de `SINAI/OffendES` declara licencias contradic
 from huggingface_hub import snapshot_download
 from multitarea_es import Predictor, HEADS
 
-pred = Predictor.cargar(snapshot_download("tatisvivass/menos-odio-v5-multitarea"))
+pred = Predictor.cargar(snapshot_download("DavidVargas-Ctrl/menos-odio-v5-multitarea"))
 probs = pred.probs(["Usted es un hp"], ["Discusión acalorada por una deuda"])[0]
 print(dict(zip(HEADS, probs)))
 ```

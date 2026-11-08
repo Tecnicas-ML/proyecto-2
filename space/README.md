@@ -19,7 +19,7 @@ Un único modelo (RoBERTuito multitarea) entrega tres señales independientes so
 - Odio grupal: F1 ≈ **0,706** · AUC ≈ **0,93** en DEV_EVAL, sin diferencia detectable frente a A3 en las mismas filas (0,689)
 - Vulgaridad e insulto se validaron con muy pocas filas (37 y 48): sus cifras no permiten concluir nada
 - TEST sin evaluar
-- Pesos: [`tatisvivass/menos-odio-v5-multitarea`](https://huggingface.co/tatisvivass/menos-odio-v5-multitarea)
+- Pesos: [`DavidVargas-Ctrl/menos-odio-v5-multitarea`](https://huggingface.co/DavidVargas-Ctrl/menos-odio-v5-multitarea)
 
 **API para el blog:** `POST /gradio_api/call/predict` con `{"data": [comentario, contexto]}`. Devuelve `{estado, mensaje, senales}`, con `prob`, `umbral` y `senal` por categoría.
 

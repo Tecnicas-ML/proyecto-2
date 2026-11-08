@@ -18,7 +18,7 @@ from huggingface_hub import snapshot_download
 from multitarea_es import HEADS, Predictor
 
 ROOT = Path(__file__).resolve().parent
-MODEL_ID = os.environ.get("HF_MODEL_ID", "tatisvivass/menos-odio-v5-multitarea")
+MODEL_ID = os.environ.get("HF_MODEL_ID", "DavidVargas-Ctrl/menos-odio-v5-multitarea")
 MAX_CHARS = 500
 
 NOMBRES = {"vulgaridad": "Vulgaridad", "insulto": "Insulto / ataque personal", "odio_grupal": "Odio grupal"}

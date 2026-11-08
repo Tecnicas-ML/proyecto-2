@@ -24,6 +24,8 @@ space/a3_metrics.json
 !space/robustez_es.py
 !plaza_streamlit/multitarea_es.py
 !plaza_streamlit/robustez_es.py
+!plaza_streamlit/carga_modelo.py
+!plaza_streamlit/pages/laboratorio.py
 
 # Entorno y artefactos locales de ejecución
 .venv/
