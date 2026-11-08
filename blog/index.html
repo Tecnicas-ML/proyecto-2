@@ -609,20 +609,22 @@
       <label><input type="checkbox" id="useApi" checked /> Usar modelo real (Hugging Face Space)</label>
       <input id="apiUrl" type="url" value="https://tatisvivass-menos-odio-a-la-vista.hf.space" />
       <button type="button" class="btn-primary" id="clearBtn" style="width:fit-content;background:#444">Vaciar comentarios de este navegador</button>
-      <p class="hint" id="status">Modelo A3 + reglas de seguridad del sitio.</p>
+      <p class="hint" id="status">Modelo v5 multitarea + reglas de seguridad del sitio.</p>
     </div>
   </details>
 
   <footer class="site sans">
     <div class="wrap">
       <p><strong>LA PLAZA</strong> — medio ficticio creado para el proyecto académico «Menos odio a la vista» (Pontificia Universidad Javeriana).</p>
-      <p style="margin:0.55rem 0 0">Filtro: RoBERTuito (odio hacia grupos) + reglas locales (insultos / daño). No sustituye moderación humana.</p>
+      <p style="margin:0.55rem 0 0">Filtro: RoBERTuito multitarea v5 (vulgaridad, insulto y odio grupal, con el título de la nota como contexto) + reglas locales (amenazas / daño). No sustituye moderación humana.</p>
     </div>
   </footer>
 
   <script>
     const SPACE_DEFAULT = "https://tatisvivass-menos-odio-a-la-vista.hf.space";
-    const THR = 0.28;
+    // Regla de esta comunidad: la vulgaridad sola se publica; insulto y odio grupal no.
+    const BLOQUEAN = ["insulto", "odio_grupal"];
+    const NOMBRES = { vulgaridad: "Vulgaridad", insulto: "Insulto", odio_grupal: "Odio grupal" };
     const STORAGE_KEY = "la-plaza-demo-comments-v4";
 
     // Groserías / insultos (ES + variantes COL/AR; plurals)
@@ -720,16 +722,14 @@
       );
     }
 
-    function showBanner(kind, title, body, prob, extra) {
+    function showBanner(kind, title, body, detail, extra) {
       banner.className = `banner show ${kind} sans`;
       banner.innerHTML =
         `<strong>${escapeHtml(title)}</strong>` +
         `<span>${escapeHtml(body)}</span>` +
-        (prob != null
-          ? `<div class="prob">Señal del modelo: ${Number(prob).toFixed(3)} (umbral ${THR})${extra ? " · " + escapeHtml(extra) : ""}</div>`
-          : extra
-            ? `<div class="prob">${escapeHtml(extra)}</div>`
-            : "");
+        (detail || extra
+          ? `<div class="prob">${escapeHtml([detail, extra].filter(Boolean).join(" · "))}</div>`
+          : "");
     }
 
     function hideBanner() {
@@ -752,17 +752,18 @@
       return t;
     }
 
-    function safetyRules(text) {
+    // La lista de insultos solo actúa sin modelo: castiga usos no agresivos que el modelo sí distingue.
+    function safetyRules(text, conInsultos) {
       const t = softNormalize(text);
       if (DANO.test(t)) return { block: true, reason: "norma del sitio: amenaza o daño" };
       if (ODIO.test(t)) return { block: true, reason: "norma del sitio: discurso de odio / exclusión" };
-      if (INSULTOS.test(t)) return { block: true, reason: "norma del sitio: insulto o agresión" };
+      if (conInsultos && INSULTOS.test(t)) return { block: true, reason: "norma del sitio: insulto o agresión" };
       return { block: false, reason: null };
     }
 
     function updateStatus() {
       statusEl.textContent = useApi.checked
-        ? "Modelo A3 (Space) + reglas de seguridad del sitio."
+        ? "Modelo v5 multitarea (Space) + reglas de seguridad del sitio."
         : "Solo reglas de seguridad (sin modelo).";
     }
 
@@ -779,17 +780,21 @@
     });
 
     function parsePayload(payload) {
-      const etiqueta = String(payload?.[0] ?? "");
-      const prob = Number(payload?.[1]);
-      const block =
-        /odio|ocultar/i.test(etiqueta) &&
-        !/sin odio|mostraría|vacío|largo/i.test(etiqueta);
-      return { block, prob: Number.isFinite(prob) ? prob : null };
+      const senales = payload?.[0]?.senales;
+      if (!senales) throw new Error("Respuesta sin señales");
+      const detail = Object.entries(senales)
+        .filter(([, s]) => s.prob != null)
+        .map(([h, s]) => `${NOMBRES[h] || h} ${s.prob.toFixed(2)} (umbral ${s.umbral.toFixed(2)})`)
+        .join(" · ");
+      return { block: BLOQUEAN.some((h) => senales[h]?.senal), detail };
     }
 
     async function scoreWithApi(text) {
       const base = (apiUrl.value || SPACE_DEFAULT).replace(/\/$/, "");
       const endpoints = [`${base}/gradio_api/call/predict`, `${base}/api/predict`];
+      // El título de la nota es el contexto, igual que en el entrenamiento.
+      const contexto = document.querySelector("h1").textContent.trim();
+      const body = JSON.stringify({ data: [text, contexto] });
       let lastErr;
       for (const url of endpoints) {
         try {
@@ -797,7 +802,7 @@
             const res = await fetch(url, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ data: [text, THR] }),
+              body,
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             return parsePayload((await res.json()).data);
@@ -805,7 +810,7 @@
           const res = await fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data: [text, THR] }),
+            body,
           });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const { event_id } = await res.json();
@@ -830,14 +835,15 @@
       submitBtn.disabled = true;
       submitBtn.textContent = "Publicando…";
 
-      const rules = safetyRules(text);
-      let model = { block: false, prob: null };
+      let model = { block: false, detail: null };
+      let modeloRespondio = false;
 
       if (useApi.checked) {
         try {
           model = await scoreWithApi(text);
+          modeloRespondio = true;
         } catch {
-          if (!rules.block) {
+          if (!safetyRules(text, true).block) {
             showBanner(
               "block",
               "No se pudo moderar",
@@ -851,12 +857,13 @@
         }
       }
 
+      const rules = safetyRules(text, !modeloRespondio);
       if (rules.block || model.block) {
         showBanner(
           "block",
           BLOCK_TITLE,
           BLOCK_BODY,
-          model.prob,
+          model.detail,
           rules.block ? rules.reason : "bloqueado por el modelo"
         );
         submitBtn.disabled = false;
@@ -867,14 +874,13 @@
       const item = {
         author: authorEl.value.trim() || "Anónimo",
         text,
-        prob: model.prob ?? 0,
         when: "Ahora",
       };
       const items = loadComments();
       items.unshift(item);
       saveComments(items);
       renderList();
-      showBanner("ok", "Comentario publicado", "Tu mensaje quedó visible bajo la nota.", model.prob);
+      showBanner("ok", "Comentario publicado", "Tu mensaje quedó visible bajo la nota.", model.detail);
       textEl.value = "";
       submitBtn.disabled = false;
       submitBtn.textContent = "Publicar";

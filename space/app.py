@@ -1,138 +1,161 @@
-"""Hugging Face Space — Menos odio a la vista (modelo A3 RoBERTuito).
+"""Hugging Face Space — Menos odio a la vista v5 (RoBERTuito multitarea con contexto).
 
-ZeroGPU: la inferencia va en una función decorada con @spaces.GPU.
+ZeroGPU: la inferencia va en funciones decoradas con @spaces.GPU.
+`multitarea_es.py` y `robustez_es.py` son copias exactas de los módulos del cuaderno.
 """
 from __future__ import annotations
 
-import json
+import math
 import os
 from pathlib import Path
 
 import gradio as gr
+import pandas as pd
 import spaces
 import torch
-from pysentimiento.preprocessing import preprocess_tweet
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from huggingface_hub import snapshot_download
+
+from multitarea_es import HEADS, Predictor
 
 ROOT = Path(__file__).resolve().parent
-LOCAL_MODEL = ROOT / "a3_model"
-META = ROOT / "a3_metrics.json"
-DEFAULT_MODEL_ID = os.environ.get("HF_MODEL_ID", "tatisvivass/menos-odio-a3-robertuito")
-MAX_LEN = 128
+MODEL_ID = os.environ.get("HF_MODEL_ID", "tatisvivass/menos-odio-v5-multitarea")
 MAX_CHARS = 500
-DEFAULT_THR = 0.28
 
-if META.exists():
-    DEFAULT_THR = float(json.loads(META.read_text())["test_metrics"]["thr"])
+NOMBRES = {"vulgaridad": "Vulgaridad", "insulto": "Insulto / ataque personal", "odio_grupal": "Odio grupal"}
 
-MODEL_SRC = str(LOCAL_MODEL) if (LOCAL_MODEL / "config.json").exists() else DEFAULT_MODEL_ID
-tok = AutoTokenizer.from_pretrained(MODEL_SRC)
+
+def ruta_modelo() -> str:
+    """Carpeta `modelo_v5` local (o MODELO_DIR) si existe; si no, descarga desde el Hub."""
+    for candidata in (os.environ.get("MODELO_DIR"), ROOT / "modelo_v5"):
+        if candidata and Path(candidata, "multitarea_config.json").exists():
+            return str(candidata)
+    return snapshot_download(MODEL_ID)
+
+
 # Pesos en CPU al arrancar; ZeroGPU mueve a GPU dentro de @spaces.GPU.
-model = AutoModelForSequenceClassification.from_pretrained(MODEL_SRC)
-model.eval()
+P = Predictor.cargar(ruta_modelo(), device=torch.device("cpu"))
 
 LIMITES = (
-    f"**Límites:** español · hasta {MAX_CHARS} caracteres (~{MAX_LEN} tokens) · "
-    f"umbral por defecto {DEFAULT_THR:.2f} (elegido en DEV) · "
-    "no sustituye moderación humana · puede fallar fuera de dominio "
-    "(otro país, otro tema, typos, contra-discurso).\n\n"
-    f"*Modelo:* `{MODEL_SRC}`"
+    f"**Límites:** español · hasta {MAX_CHARS} caracteres · umbrales elegidos en DEV_EVAL, no universales · "
+    "no sustituye moderación humana · los estereotipos regionales no siempre se reconocen como odio grupal · "
+    "vulgaridad e insulto se validaron con muy pocas filas · el efecto del contexto en esas dos señales es "
+    "una observación por confirmar.\n\n"
+    f"*Modelo:* `{MODEL_ID}`"
 )
 
 EJEMPLOS = [
-    ["Qué buena nota, gracias por explicar el tema con claridad.", DEFAULT_THR],
-    ["No estoy de acuerdo con la medida, me parece injusta.", DEFAULT_THR],
-    ["Ojalá desaparezcan todos esos negros de mierda de una vez.", DEFAULT_THR],
-    ["Hay que echar a todos los inmigrantes del país ya.", DEFAULT_THR],
-    ["No odio a nadie: rechazo las ideas, no a las personas.", DEFAULT_THR],
+    ["Me encanta la cultura costeña", ""],
+    ["Todos los costeños son perezosos", ""],
+    ["No está bien decir que todos los costeños son perezosos", ""],
+    ["Usted sí es mucho hp, parce", "Conversación entre amigos planeando el asado, todo en buena onda."],
+    ["Usted es un hp", "Discusión acalorada: le reclama a otro usuario por una deuda."],
+    ["HI J U E P U T A", ""],
+    ["hijuep*ta", ""],
+    ["Qué parche tan bacano, mijo", ""],
 ]
 
 
-@spaces.GPU
-def predecir(texto: str, umbral: float):
-    """Devuelve (decisión, probabilidad, mensaje). Endpoint API: /predict."""
-    texto = (texto or "").strip()
+def _probs(texto: str, contexto: str | None, tta: bool = True):
+    P.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    P.model.to(P.device)
+    return P.probs([texto], [contexto], tta=tta)[0]
+
+
+def _valida(texto: str) -> str | None:
     if not texto:
-        return "Vacío", 0.0, "Escribí un comentario para analizar."
+        return "Escribí un comentario para analizar."
     if len(texto) > MAX_CHARS:
-        return (
-            "Muy largo",
-            0.0,
-            f"Límite: {MAX_CHARS} caracteres (el modelo admite {MAX_LEN} tokens). "
-            "Acortá el texto o se truncará al desplegarse en un blog.",
-        )
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model.to(device)
-    prep = preprocess_tweet(texto, lang="es")
-    enc = tok(prep, return_tensors="pt", truncation=True, max_length=MAX_LEN, padding=True)
-    enc = {k: v.to(device) for k, v in enc.items()}
-    with torch.no_grad():
-        logits = model(**enc).logits[0]
-        prob = float(torch.softmax(logits, dim=-1)[1].item())
-
-    ocultar = prob >= float(umbral)
-    if ocultar:
-        etiqueta = "Con odio (se ocultaría)"
-        aviso = (
-            "Este comentario se ocultaría por las normas de la comunidad. "
-            "Queremos un espacio donde todas las personas —incluidas chicas, "
-            "niños y adolescentes— puedan leer sin tropiezos con agresiones. "
-            "Opción humana: mostrar de todos modos / revisar."
-        )
-    else:
-        etiqueta = "Sin odio (se mostraría)"
-        aviso = (
-            "Por debajo del umbral: se publicaría. "
-            "El modelo no sustituye una decisión humana."
-        )
-    return etiqueta, round(prob, 4), aviso
+        return f"Límite: {MAX_CHARS} caracteres. Acortá el texto."
+    return None
 
 
-with gr.Blocks(title="Menos odio a la vista") as demo:
+@spaces.GPU
+def analizar(texto, contexto, tta, comparar, *umbrales):
+    """Laboratorio: tres señales con umbrales ajustables y efecto del contexto."""
+    texto, contexto = (texto or "").strip(), (contexto or "").strip() or None
+    error = _valida(texto)
+    if error:
+        return error, pd.DataFrame()
+
+    con = _probs(texto, contexto, tta)
+    sin = _probs(texto, None, tta) if (comparar and contexto) else None
+    filas, activas = [], []
+    for j, h in enumerate(HEADS):
+        p = float(con[j])
+        if math.isnan(p):
+            filas.append({"categoría": NOMBRES[h], "probabilidad": "sin entrenar", "umbral": "—", "señal": "—"})
+            continue
+        senal = p >= float(umbrales[j])
+        if senal:
+            activas.append(NOMBRES[h])
+        fila = {"categoría": NOMBRES[h], "probabilidad": round(p, 3), "umbral": round(float(umbrales[j]), 3),
+                "señal": "sí" if senal else "no"}
+        if sin is not None:
+            fila["sin contexto"] = round(float(sin[j]), 3)
+            fila["cambio por contexto"] = round(p - float(sin[j]), 3)
+        filas.append(fila)
+    resumen = f"Señales activas: {', '.join(activas)}" if activas else "Sin señales activas"
+    return resumen, pd.DataFrame(filas)
+
+
+@spaces.GPU
+def predecir(texto, contexto):
+    """Endpoint API `/predict` que consume el blog. Cada sitio aplica su propia regla sobre las señales."""
+    texto, contexto = (texto or "").strip(), (contexto or "").strip() or None
+    error = _valida(texto)
+    if error:
+        return {"estado": "invalido", "mensaje": error, "senales": None}
+    probs = _probs(texto, contexto)
+    senales = {}
+    for j, h in enumerate(HEADS):
+        p = float(probs[j])
+        senales[h] = {
+            "prob": None if math.isnan(p) else round(p, 4),
+            "umbral": round(float(P.thr[j]), 4),
+            "senal": (not math.isnan(p)) and p >= float(P.thr[j]),
+        }
+    return {"estado": "ok", "mensaje": "", "senales": senales}
+
+
+with gr.Blocks(title="Menos odio a la vista · v5") as demo:
     gr.Markdown(
-        "# Menos odio a la vista\n"
-        "Filtro previo con **RoBERTuito** ajustado al corpus `piuba-bigdata` "
-        "(etiqueta `HATEFUL`). F1 odio en test ≈ **0,653** · AUC ≈ **0,90**.\n\n"
-        + LIMITES
+        "# Menos odio a la vista · v5\n"
+        "Un único modelo entrega **tres señales independientes** (vulgaridad, insulto, odio grupal) sobre el "
+        "comentario y, si existe, su contexto. Son probabilidades calibradas, no un veredicto.\n\n"
+        "Odio grupal: F1 ≈ **0,706** en DEV_EVAL, sin diferencia detectable frente al modelo A3 en las mismas "
+        "filas (0,689). TEST sin evaluar.\n\n" + LIMITES
     )
     with gr.Row():
         with gr.Column():
-            texto = gr.Textbox(
-                lines=4,
-                label="Comentario en español",
-                placeholder="Escribí un comentario…",
-                max_lines=8,
-            )
-            umbral = gr.Slider(
-                0.05,
-                0.95,
-                value=DEFAULT_THR,
-                step=0.01,
-                label="Umbral (elegido en DEV ≈ 0,28)",
-            )
+            texto = gr.Textbox(lines=4, max_lines=8, label="Comentario en español", placeholder="Escribí un comentario…")
+            contexto = gr.Textbox(lines=2, label="Contexto (opcional: título de la noticia o mensaje previo)")
+            with gr.Row():
+                tta = gr.Checkbox(value=True, label="Usar vista normalizada (TTA)")
+                comparar = gr.Checkbox(value=True, label="Comparar con y sin contexto")
+            umbrales = [
+                gr.Slider(0.05, 0.95, value=round(float(P.thr[j]), 3), step=0.001,
+                          label=f"Umbral · {NOMBRES[h]} (DEV_EVAL: {P.thr[j]:.3f})")
+                for j, h in enumerate(HEADS)
+            ]
             btn = gr.Button("Analizar", variant="primary")
         with gr.Column():
-            decision = gr.Textbox(label="Decisión")
-            prob = gr.Number(label="Probabilidad de odio")
-            mensaje = gr.Textbox(label="Mensaje para la comunidad", lines=4)
+            resumen = gr.Textbox(label="Resultado")
+            tabla = gr.Dataframe(label="Señales por categoría", interactive=False)
+            gr.Markdown(
+                "Las categorías **no son excluyentes**. Mover un umbral cambia el equilibrio entre falsos "
+                "positivos y falsos negativos. La decisión final corresponde a una persona."
+            )
 
-    btn.click(predecir, inputs=[texto, umbral], outputs=[decision, prob, mensaje], api_name="predict")
-    texto.submit(predecir, inputs=[texto, umbral], outputs=[decision, prob, mensaje], api_name=False)
+    entradas = [texto, contexto, tta, comparar, *umbrales]
+    btn.click(analizar, inputs=entradas, outputs=[resumen, tabla], api_name=False)
+    texto.submit(analizar, inputs=entradas, outputs=[resumen, tabla], api_name=False)
 
-    gr.Examples(
-        examples=EJEMPLOS,
-        inputs=[texto, umbral],
-        outputs=[decision, prob, mensaje],
-        fn=predecir,
-        cache_examples=False,
-        label="Ejemplos (limpios, agresivos y difíciles)",
-    )
-    gr.Markdown(
-        "### Cómo se usa en el blog\n"
-        "Si la probabilidad ≥ umbral, el comentario se reemplaza por el aviso de "
-        "**normas de la comunidad** con botón *mostrar de todos modos*."
-    )
+    # Sin interfaz visible: expone POST /gradio_api/call/predict para el blog estático.
+    api_salida = gr.JSON(visible=False)
+    api_btn = gr.Button(visible=False)
+    api_btn.click(predecir, inputs=[texto, contexto], outputs=api_salida, api_name="predict")
+
+    gr.Examples(examples=EJEMPLOS, inputs=[texto, contexto], label="Ejemplos (limpios, agresivos y difíciles)")
 
 
 if __name__ == "__main__":

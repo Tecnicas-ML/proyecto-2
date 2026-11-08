@@ -1,7 +1,13 @@
 gradio>=5.0.0
 torch
 transformers>=4.40.0
+huggingface_hub
 pysentimiento
+emoji
+numpy
+pandas
+scikit-learn
+scipy
 accelerate
 safetensors
 sentencepiece
