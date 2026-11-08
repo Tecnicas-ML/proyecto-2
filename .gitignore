@@ -20,6 +20,10 @@ space/a3_metrics.json
 !plaza_streamlit/streamlit_app.py
 !plaza_streamlit/requirements.txt
 !plaza_streamlit/README.md
+!space/multitarea_es.py
+!space/robustez_es.py
+!plaza_streamlit/multitarea_es.py
+!plaza_streamlit/robustez_es.py
 
 # Entorno y artefactos locales de ejecución
 .venv/
@@ -32,6 +36,9 @@ prep_config.json
 # Pesos del modelo A3 (subir a Hugging Face Hub, no al git)
 a3_model/
 **/a3_model/
+**/modelo_v5/
+artifacts_v5/
+*.pt
 *.safetensors
 *.joblib
 *.keras
