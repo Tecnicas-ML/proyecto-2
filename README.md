@@ -16,10 +16,10 @@ Detección multitarea de **vulgaridad, insulto y odio grupal** con contexto, en 
 
 | Rol | URL |
 |---|---|
-| **LA PLAZA** (blog con el modelo v5 — Streamlit) | _pendiente de desplegar_ |
-| **Laboratorio** (tres señales, umbrales, efecto del contexto) | Página «laboratorio» dentro de la misma app de Streamlit |
+| **LA PLAZA** (blog con el modelo v5 — Streamlit) | https://appapppy-bwzuyjn5oyury4fpaqxd9i.streamlit.app/ |
+| **Laboratorio** (tres señales, umbrales, efecto del contexto) | https://huggingface.co/spaces/tatisvivass/menos-odio-a-la-vista |
 | Pesos v5 | https://huggingface.co/DavidVargas-Ctrl/menos-odio-v5-multitarea |
-| Pesos A3 (modelo original; el cuaderno lo usa como referencia, no borrar) | https://huggingface.co/tatisvivass/menos-odio-a3-robertuito |
+| Pesos A3 (modelo original; el cuaderno lo usa como referencia) | https://huggingface.co/tatisvivass/menos-odio-a3-robertuito |
 | Extensión de navegador | Equipo |
 
 **Regla de moderación de LA PLAZA:** se bloquean `insulto` y `odio_grupal`; la vulgaridad sola se publica. El título de la nota se envía como contexto. Las reglas locales cubren amenazas y exclusión, que el modelo no modela; la lista de insultos solo actúa si el modelo no responde.
