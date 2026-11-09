@@ -1,23 +1,26 @@
-"""LA PLAZA — Streamlit (look de medio + moderación A3).
+"""LA PLAZA — Streamlit (look de medio + moderación v5 multitarea).
 
 Local:
   streamlit run plaza_streamlit/streamlit_app.py
 
 Cloud: Main file path = plaza_streamlit/streamlit_app.py
+
+`multitarea_es.py` y `robustez_es.py` son copias exactas de los módulos del cuaderno.
 """
 from __future__ import annotations
 
 import re
 
 import streamlit as st
-import torch
-from pysentimiento.preprocessing import preprocess_tweet
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-MODEL_ID = "tatisvivass/menos-odio-a3-robertuito"
-MAX_LEN = 128
+from carga_modelo import load_predictor
+from multitarea_es import HEADS
+
 MAX_CHARS = 500
-DEFAULT_THR = 0.28
+TITULO_NOTA = "La plaza del centro reabrió entre música, puestos y vecinos que volvieron a encontrarse"
+# Regla de esta comunidad: la vulgaridad sola se publica; insulto y odio grupal no.
+BLOQUEAN = ("insulto", "odio_grupal")
+NOMBRES = {"vulgaridad": "Vulgaridad", "insulto": "Insulto", "odio_grupal": "Odio grupal"}
 ASSET = "https://tatisvivass-la-plaza-demo.static.hf.space/assets"
 
 SEED = [
@@ -85,29 +88,26 @@ def soft_normalize(text: str) -> str:
     return t.replace("pvto", "puto")
 
 
-def rules_block(text: str) -> bool:
+def rules_block(text: str, con_insultos: bool) -> bool:
+    """Amenazas y exclusión siempre (el modelo no tiene cabeza de amenaza).
+    La lista de insultos solo actúa si el modelo no respondió: castiga usos no agresivos."""
     t = soft_normalize(text)
-    return bool(DANO.search(t) or ODIO.search(t) or INSULTOS.search(t))
+    return bool(DANO.search(t) or ODIO.search(t) or (con_insultos and INSULTOS.search(t)))
 
 
-@st.cache_resource(show_spinner="Cargando modelo A3 (primera vez puede tardar)…")
-def load_model():
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
-    clf = AutoModelForSequenceClassification.from_pretrained(
-        MODEL_ID,
-        low_cpu_mem_usage=True,
-    )
-    clf.eval()
-    return tokenizer, clf
+def score_signals(texto: str) -> dict:
+    """Tres señales calibradas, con el título de la nota como contexto (como en el entrenamiento)."""
+    pred = load_predictor()
+    probs = pred.probs([texto], [TITULO_NOTA])[0]
+    return {
+        h: {"prob": float(probs[j]), "umbral": float(pred.thr[j]), "senal": bool(probs[j] >= pred.thr[j])}
+        for j, h in enumerate(HEADS)
+    }
 
 
-def score_hate(texto: str) -> tuple[bool, float]:
-    tokenizer, clf = load_model()
-    prep = preprocess_tweet(texto, lang="es")
-    enc = tokenizer(prep, return_tensors="pt", truncation=True, max_length=MAX_LEN, padding=True)
-    with torch.no_grad():
-        prob = float(torch.softmax(clf(**enc).logits[0], dim=-1)[1].item())
-    return prob >= DEFAULT_THR, prob
+def signals_line(signals: dict) -> str:
+    partes = [f"{NOMBRES[h]} {s['prob']:.2f} (umbral {s['umbral']:.2f})" for h, s in signals.items()]
+    return "<div style='font-size:.76rem;margin-top:.4rem'>" + " · ".join(partes) + "</div>"
 
 
 st.set_page_config(
@@ -184,11 +184,11 @@ col_main, col_side = st.columns([2.2, 1], gap="large")
 with col_main:
     st.markdown('<p class="lp-kicker">Bogotá · Comunidad</p>', unsafe_allow_html=True)
     st.markdown(
-        '<p class="lp-title">La plaza del centro reabrió entre música, puestos y vecinos que volvieron a encontrarse</p>',
+        f'<p class="lp-title">{TITULO_NOTA}</p>',
         unsafe_allow_html=True,
     )
     st.markdown(
-        '<p class="lp-by">Por Camila Restrepo · 6 de noviembre 2026 · Moderación con RoBERTuito (A3)</p>',
+        '<p class="lp-by">Por Camila Restrepo · 6 de noviembre 2026 · Moderación con RoBERTuito multitarea (v5)</p>',
         unsafe_allow_html=True,
     )
     st.image(f"{ASSET}/hero-plaza.jpg", use_container_width=True)
@@ -258,15 +258,14 @@ if submitted:
         st.session_state.banner = "<p style='color:#5c5c5c'>Escribí un comentario.</p>"
     else:
         with st.spinner("Revisando con el filtro…"):
+            signals = None
             try:
-                by_rules = rules_block(text)
-                by_model, _p = score_hate(text)
-                block = by_rules or by_model
+                signals = score_signals(text)
+                block = rules_block(text, con_insultos=False) or any(signals[h]["senal"] for h in BLOQUEAN)
             except Exception as exc:  # noqa: BLE001
                 # Si el modelo no carga (RAM), al menos aplicamos reglas
-                by_rules = rules_block(text)
-                block = by_rules
-                if not by_rules:
+                block = rules_block(text, con_insultos=True)
+                if not block:
                     st.session_state.banner = (
                         "<div style='background:#fff2f1;border:1px solid #f0b8b3;color:#8a1c16;"
                         "padding:.85rem;border-radius:2px;font-family:Libre Franklin,system-ui'>"
@@ -276,12 +275,13 @@ if submitted:
                     )
                     st.rerun()
 
+        detalle = signals_line(signals) if signals else ""
         if block:
             st.session_state.banner = (
                 "<div style='background:#fff2f1;border:1px solid #f0b8b3;color:#8a1c16;"
                 "padding:.85rem;border-radius:2px;font-family:Libre Franklin,system-ui'>"
                 "<strong>Violación de las normas de la comunidad</strong><br/>"
-                f"{BLOCK_BODY}</div>"
+                f"{BLOCK_BODY}{detalle}</div>"
             )
         else:
             st.session_state.comments = [{"author": author, "text": text}, *st.session_state.comments]
@@ -289,7 +289,7 @@ if submitted:
                 "<div style='background:#eef8f0;border:1px solid #b9dfc4;color:#1b5c34;"
                 "padding:.85rem;border-radius:2px;font-family:Libre Franklin,system-ui'>"
                 "<strong>Comentario publicado</strong><br/>"
-                "Tu mensaje quedó visible bajo la nota.</div>"
+                f"Tu mensaje quedó visible bajo la nota.{detalle}</div>"
             )
     st.rerun()
 
@@ -302,6 +302,8 @@ for item in st.session_state.comments:
 
 st.markdown("</div>", unsafe_allow_html=True)
 
+st.page_link("pages/laboratorio.py", label="🛡️ Abrir el laboratorio del modelo (tres señales y contexto)")
+
 with st.expander("Opciones de demo (equipo)"):
     if st.button("Restablecer comentarios"):
         st.session_state.comments = list(SEED)
@@ -312,7 +314,7 @@ st.markdown(
     """
 <div style="background:#111;color:#bbb;padding:1.25rem 1rem;margin:2rem -1rem 0;font-family:Libre Franklin,system-ui;font-size:.78rem">
   <strong style="color:#fff">LA PLAZA</strong> — medio ficticio · proyecto «Menos odio a la vista»
-  (Pontificia Universidad Javeriana). Filtro: RoBERTuito A3 + reglas del sitio.
+  (Pontificia Universidad Javeriana). Filtro: RoBERTuito multitarea v5 (vulgaridad, insulto, odio grupal) + reglas del sitio. No sustituye moderación humana.
 </div>
 """,
     unsafe_allow_html=True,
