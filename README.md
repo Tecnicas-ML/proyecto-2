@@ -10,6 +10,8 @@ Detección multitarea de **vulgaridad, insulto y odio grupal** con contexto, en 
 
 **`proyecto_toxicidad_es_v5.ipynb`** — informe técnico reproducible (Fase 0, EDA, preparación de etiquetas, modelo multitarea, calibración, robustez, contexto, comparación con A3, errores, HateCheck-es, aplicación, limitaciones y conclusiones).
 
+**Abrir en Colab (entrega):** https://colab.research.google.com/github/Tecnicas-ML/proyecto-2/blob/Fine-Tuning2/proyecto_toxicidad_es_v5.ipynb
+
 ## Demos en vivo
 
 | Rol | URL |
@@ -58,7 +60,11 @@ Cómo leer estas cifras:
 
 ## Cuaderno
 
-Abrir el `.ipynb` en Colab con GPU T4 y ejecutar en orden. Requiere aceptar las condiciones de `SINAI/OffendES` en el Hub y guardar `HF_TOKEN` en los *Secrets* de Colab; sin eso, vulgaridad e insulto quedan sin entrenar. `MODO='prueba'` verifica que todo corre con una submuestra; `MODO='completo'` entrena con todos los datos (≈ 13 min).
+Abrir en Colab (GPU T4) y ejecutar en orden:
+
+https://colab.research.google.com/github/Tecnicas-ML/proyecto-2/blob/Fine-Tuning2/proyecto_toxicidad_es_v5.ipynb
+
+Requiere aceptar las condiciones de `SINAI/OffendES` en el Hub y guardar `HF_TOKEN` en los *Secrets* de Colab; sin eso, vulgaridad e insulto quedan sin entrenar. `MODO='prueba'` verifica que todo corre con una submuestra; `MODO='completo'` entrena con todos los datos (≈ 13 min).
 
 ## Desplegar
 
